@@ -1,14 +1,16 @@
 # neovim
 [ -e ~/.config/nvim ] && rm -rf ~/.config/nvim
-ln -sf `pwd`/vim ~/.config/nvim
 ln -sf `pwd`/vimrc ~/.config/nvim/init.vim
+curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 echo "Successfully deploy neovim config"
+echo "You can run :PlugInstall in your vim to install all plugins"
 
 # vim, macvim
 [ -e ~/.vim ] && rm -rf ~/.vim
-ln -sf `pwd`/vim ~/.vim
 ln -sf `pwd`/vimrc ~/.vimrc
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 echo "Successfully deploy vim or macvim config"
+echo "You can run :PlugInstall in your vim to install all plugins"
 
 # tmux
 ln -sf `pwd`/tmux.conf ~/.tmux.conf
@@ -26,3 +28,5 @@ echo "Successfully deploy zsh config"
 
 echo "Finished all config tasks"
 exec /bin/zsh
+
+

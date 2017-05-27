@@ -1,75 +1,35 @@
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
-filetype off
 
-"Setup Plugin Support{
 call plug#begin('~/.vim/plugged')
-"}
 
-" ================================= Plugins ==================================
-"Color
 Plug 'altercation/vim-colors-solarized'
-
 Plug 'Yggdroot/indentLine'
-
-"Lang
-Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
 Plug 'kien/ctrlp.vim'
-Plug 'mattn/emmet-vim', { 'for': ['html', 'css', 'scss', 'sass', 'eruby'] }
-Plug 'jlanzarotta/bufexplorer'
-Plug 'ap/vim-css-color'
-Plug 'vim-scripts/jsbeautify', { 'for': ['javascript', 'coffee'] }
-Plug 'pangloss/vim-javascript', { 'for': ['javascript', 'coffee'] }
-Plug 'tpope/vim-markdown', { 'for': 'markdown' }
-Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
-
-Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
-Plug 'rking/ag.vim'
-Plug 'Lokaltog/vim-easymotion'
-Plug 'tpope/vim-endwise'
-Plug 'tmhedberg/matchit'
-
-Plug 'eparreno/vim-l9'
-Plug 'othree/vim-autocomplpop'
-function! DoRemote(arg)
-  UpdateRemotePlugins
-endfunction
-"Plug 'Shougo/echodoc.vim'
-"Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
-"Plug 'carlitux/deoplete-ternjs'
-
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
-
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle'] }
 Plug 'scrooloose/nerdcommenter'
 Plug 'jistr/vim-nerdtree-tabs'
-
-Plug 'neomake/neomake', { 'on': ['Neomake'] }
+Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
-"}
-
-"Vim powerline
-Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
-" Add plugins to &runtimepath
+"Lang
+Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
+Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
+Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
+Plug 'tpope/vim-fugitive'
+
 call plug#end()
 
-" ================================= Vim Functions ==================================
-
-" ================================= Vim Configration ==================================
-"set dictionary+=/usr/local/share/dict/words
-
-
-set textwidth=80
+set textwidth=120
 set fo=mbtcrolq
 set backspace=indent,eol,start  " backspace for dummies
 set linespace=0                 " No extra spaces between rows
-set number                          " Line numbers on
+set number                      " Line numbers on
 set showmatch                   " show matching brackets/parenthesis
 set incsearch                   " find as you type search
 set hlsearch                    " highlight search terms
@@ -77,7 +37,7 @@ set winminheight=0              " windows can be 0 line high
 set ignorecase                  " case insensitive search
 set smartcase                   " case sensitive when uc present
 set wildmenu                    " show list instead of just completing
-set wildmode=list:longest,full  " command <Tab> completion, list matches, then longest common part, then all.
+set wildmode=list:longest,full  " command <Tab> completion, list matches, then longest common part, then all
 set whichwrap=b,s,h,l,<,>,[,]   " backspace and cursor keys wrap to
 set scrolljump=5                " lines to scroll when cursor leaves screen
 set scrolloff=3                 " minimum lines to keep above and below cursor
@@ -92,11 +52,11 @@ set fileformat=unix             "set file format
 set shortmess=atI               "set don't show the hint at startup
 set list
 set listchars=tab:,.,trail:.,extends:#,nbsp:. " Highlight problematic whitespace
-set visualbell                   "no sounds
-set autoread                     "reload files changed outside
-set showmode                     "display the current mode
-set cursorline                   "highlight current line
-set hidden                       "buffers can exist in the background
+set visualbell                  "no sounds
+set autoread                    "reload files changed outside
+set showmode                    "display the current mode
+set cursorline                  "highlight current line
+set hidden                      "buffers can exist in the background
 set linebreak                   "wrap lines at convenient points
 set autoindent                  " indent at the same level of the previous line
 set smartindent
@@ -117,15 +77,6 @@ scriptencoding utf-8
 set shortmess+=filmnrxoOtT      "abbrev. of messages (avoids 'hit enter')
 set viewoptions=folds,options,cursor,unix,slash " better unix / windows compatibility
 set virtualedit=onemore         "allow for cursor beyond last character
-if has('gui_running')
- set guioptions-=T             " remove the toolbar
- set lines=40                  " 40 lines of text instead of 24,
- set guifont=Monoca\ for\ Powerline:h19
- if has('gui_macvim')
-   set transparency=5          " Make the window slightly transparent
- endif
-endif
-
 set tags+=tags             "set tags
 set tags+=~/.rvm/gems/tags
 
@@ -152,62 +103,15 @@ set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
 " ================================= Key Mappings ==================================
 "The default leader is '\', but many people prefer ',' as it's in a standard location
 let mapleader = ','
+
 " ctrl + a
 noremap <C-a> ggVG
 inoremap <C-a> <C-O>ggVG
-" Making it so ; works like : for commands. Saves typing and eliminates :W style typos due to lazy holding shift.
-nnoremap ; :
-set clipboard=unnamed
-" Easier moving in tabs and windows
-if has('nvim')
-  nmap <BS> <C-W>h
-endif
+
 map <C-H> <C-W>h
 map <C-J> <C-W>j
 map <C-K> <C-W>k
 map <C-L> <C-W>l
-
-map <Leader>rt :!ctags --extra=+f  --exclude=.git --exclude=log -R * `pwd`/*<CR><CR>
-imap jj <Esc>           "set ESC map
-
-autocmd FileType html,css,eruby EmmetInstall
-autocmd FileType c,cpp,java,php,js,python,twig,xml,yml autocmd BufWritePre <buffer> :call setline(1,map(getline(1,"$"),'substitute(v:val,"\\s\\+$","","")'))
-autocmd BufNewFile,BufRead *.scss set ft=css
-autocmd BufNewFile,BufRead *.rabl set ft=ruby
-"autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
-
-" 切换前后buffer
-nnoremap [b :bprevious<cr>
-nnoremap ]b :bnext<cr>
-" 使用方向键切换buffer
-noremap <left> :bp<CR>
-noremap <right> :bn<CR>
-
-" y$ -> Y Make Y behave like other capitals
-map Y y$
-
-" tab切换
-map <leader>th :tabfirst<cr>
-map <leader>tl :tablast<cr>
-
-map <leader>tn :tabnext<cr>
-map <leader>tp :tabprev<cr>
-
-map <leader>te :tabedit<cr>
-map <leader>td :tabclose<cr>
-map <leader>tm :tabm<cr>
-
-" normal模式下切换到确切的tab
-noremap <leader>1 1gt
-noremap <leader>2 2gt
-noremap <leader>3 3gt
-noremap <leader>4 4gt
-noremap <leader>5 5gt
-noremap <leader>6 6gt
-noremap <leader>7 7gt
-noremap <leader>8 8gt
-noremap <leader>9 9gt
-noremap <leader>0 :tablast<cr>
 
 " Quickly close the current window
 nnoremap <leader>q :q<CR>
@@ -215,42 +119,9 @@ nnoremap <leader>q :q<CR>
 " Quickly save the current file
 nnoremap <leader>w :w<CR>
 
-" When jump to next match also center screen
-nnoremap n nzz
-nnoremap N Nzz
-vnoremap n nzz
-vnoremap N Nzz
-
-" Same when moving up and down
-nnoremap <C-u> <C-u>zz
-nnoremap <C-d> <C-d>zz
-nnoremap <C-f> <C-f>zz
-nnoremap <C-b> <C-b>zz
-vnoremap <C-u> <C-u>zz
-vnoremap <C-d> <C-d>zz
-vnoremap <C-f> <C-f>zz
-vnoremap <C-b> <C-b>zz
-
 " Remap H and L (top, bottom of screen to left and right end of line)
 nnoremap H ^
 nnoremap L $
-vnoremap H ^
-vnoremap L g_
-
-" Move visual block
-vnoremap J :m '>+1<CR>gv=gv
-vnoremap K :m '<-2<CR>gv=gv
-
-" Start substitute on current word under the cursor
-nnoremap ,s :%s///gc<Left><Left><Left>
-
-" Start search on current word under the cursor
-nnoremap ,/ /<CR>
-
-" Start reverse search on current word under the cursor
-nnoremap ,? ?<CR>
-
-nnoremap <silent> <leader>b :BufExplorer<CR>
 
 " 设置可以高亮的关键字
 if has("autocmd")
@@ -261,9 +132,9 @@ if has("autocmd")
   endif
 endif
 
-" ================================= Plugs Configration ==================================
 " ********************************* indentLine ********************************
 let g:indentLine_color_term = 239
+
 " ********************************* Ctrlp ********************************
 let g:ctrlp_map = '<C-p>'
 let g:ctrlp_working_path_mode = 'ra'
@@ -281,15 +152,8 @@ nnoremap <silent> <leader>gb :Gblame<CR>
 nnoremap <silent> <leader>gl :Glog<CR>
 nnoremap <silent> <leader>gp :Git push<CR>
 
-
 " ********************************* Nerd Commenter ********************************
 let NERDSpaceDelims = 1
-
-" ********************************* Emmet ********************************
-let g:user_emmet_expandabbr_key = '<leader>e'
-let g:user_emmet_mode='a'
-let g:user_emmet_install_global = 0
-
 
 " ********************************* NerdTree ********************************
 nnoremap <leader>t :NERDTreeToggle<cr>
@@ -301,57 +165,6 @@ let g:nerdtree_tabs_open_on_gui_startup = 0
 let NERDTreeWinSize = 30
 let NERDTreeQuitOnOpen = 0
 let NERDTreeShowHidden = 1
-
-"snipMat
-let g:snipMate = {}
-let g:snipMate.scope_aliases = {}
-let g:snipMate.scope_aliases['ruby'] = 'ruby, rails'
-
-" *********************************** Vim Ag *******************************
-" The Silver Searcher
-if executable('ag')
-  " Use ag over grep
-  set grepprg=ag\ --nogroup\ --nocolor
-
-  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-
-  " ag is fast enough that CtrlP doesn't need to cache
-  let g:ctrlp_use_caching = 0
-endif
-
-nnoremap K :ag "\b<C-R><C-W>\b"<CR>:cw<CR>
-
-" *********************************** EasyMotion *******************************
-let g:EasyMotion_use_upper = 1 " Use uppercase target labels and type as a lower case
-let g:EasyMotion_smartcase = 1 " type `l` and match `l`&`L`
-let g:EasyMotion_use_smartsign_us = 1 " Smartsign (type `3` and match `3`&`#`)
-map / <Plug>(easymotion-sn)
-omap / <Plug>(easymotion-tn)
-
-" *********************************** NeoMake *******************************
-autocmd! BufWritePost * Neomake
-let g:neomake_javascript_jshint_maker = {
-    \ 'args': ['--verbose'],
-    \ 'errorformat': '%A%f: line %l\, col %v\, %m \(%t%*\d\)',
-    \ }
-let g:neomake_javascript_enabled_makers = ['jshint']
-
-
-" *********************************** Ultisnips *******************************
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<c-b>"
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
-
-" *********************************** Javascript-vim *******************************
-let g:javascript_enable_domhtmlcss = 1
-
-" *********************************** AutoComplPop *******************************
-let g:acp_enableAtStartup = 1
-let g:acp_mappingDriven = 0
 
 " *********************************** Vim Instant Markdown *******************************
 let g:instant_markdown_slow = 1
@@ -366,13 +179,3 @@ if !exists('g:easy_align_delimeters')
   let g:easy_align_delimeters = {}
 endif
 let g:easy_align_delimeters['#'] = { 'pattern': '#', 'ignore_groups': ['String'] }
-
-" omnifuncs
-augroup omnifuncs
-  autocmd!
-  autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-  autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-  autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-  autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-  autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-augroup end

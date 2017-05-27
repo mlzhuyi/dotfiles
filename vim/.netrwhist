@@ -1,7 +1,0 @@
-let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =5
-let g:netrw_dirhist_1='/Users/yizhu/.rvm/gems/ruby-2.3.0/gems/alo7_model-2.20.1'
-let g:netrw_dirhist_2='/Users/yizhu/.rvm/gems/ruby-2.3.0/gems/alo7_model-2.20.1/lib'
-let g:netrw_dirhist_3='/Users/yizhu/shell'
-let g:netrw_dirhist_4='/Users/yizhu/.ssh'
-let g:netrw_dirhist_5='/Users/yizhu/.docker'

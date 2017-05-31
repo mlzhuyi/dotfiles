@@ -1,6 +1,7 @@
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
+filetype off
 
 call plug#begin('~/.vim/plugged')
 
@@ -108,6 +109,9 @@ let mapleader = ','
 noremap <C-a> ggVG
 inoremap <C-a> <C-O>ggVG
 
+"set system clipboard as default clipboard for vim
+set clipboard=unnamed
+
 map <C-H> <C-W>h
 map <C-J> <C-W>j
 map <C-K> <C-W>k
@@ -122,6 +126,9 @@ nnoremap <leader>w :w<CR>
 " Remap H and L (top, bottom of screen to left and right end of line)
 nnoremap H ^
 nnoremap L $
+
+" Start substitute on current word under the cursor
+nnoremap ,s :%s///gc<Left><Left><Left>
 
 " 设置可以高亮的关键字
 if has("autocmd")

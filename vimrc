@@ -17,12 +17,15 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'vim-scripts/AutoComplPop'
 
 "Lang
 Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
 Plug 'tpope/vim-fugitive'
+Plug 'Shougo/echodoc.vim'
+Plug 'SirVer/ultisnips'
 
 call plug#end()
 
@@ -176,6 +179,7 @@ let NERDTreeShowHidden = 1
 " *********************************** Vim Instant Markdown *******************************
 let g:instant_markdown_slow = 1
 let g:instant_markdown_autostart = 0
+let g:instant_markdown_open_to_the_world = 1
 map <Leader>m :InstantMarkdownPreview<CR>
 autocmd BufNewFile,BufReadPost *.md set filetype=markdown
 
@@ -186,3 +190,12 @@ if !exists('g:easy_align_delimeters')
   let g:easy_align_delimeters = {}
 endif
 let g:easy_align_delimeters['#'] = { 'pattern': '#', 'ignore_groups': ['String'] }
+
+" *********************************** Ultisnips *******************************
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+

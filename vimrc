@@ -18,14 +18,18 @@ Plug 'junegunn/vim-easy-align'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-scripts/AutoComplPop'
+Plug 'rking/ag.vim'
+Plug 'majutsushi/tagbar'
 
-"Lang
+"lang
 Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
 Plug 'tpope/vim-fugitive'
 Plug 'Shougo/echodoc.vim'
 Plug 'SirVer/ultisnips'
+Plug 'vim-ruby/vim-ruby'
+Plug 'vim-syntastic/syntastic'
 
 call plug#end()
 
@@ -170,7 +174,7 @@ nnoremap <leader>t :NERDTreeToggle<cr>
 autocmd VimEnter * NERDTree | wincmd p
 "autocmd vimenter * if !argc() | NERDTree | endif "Open nerdtree when no files specific"
 let NERDTreeChDirMode = 2
-let NERDTreeIgnore=['\.vim$', '\~$', '\.git$', '.jpg', '.png', '.gif', 'node_modules$', 'bower_components$']
+let NERDTreeIgnore=['\.vim$', '\~$', '\.git$', '.jpg', '.png', '.gif', 'node_modules$', 'bower_components$', 'tags']
 let g:nerdtree_tabs_open_on_gui_startup = 0
 let NERDTreeWinSize = 30
 let NERDTreeQuitOnOpen = 0
@@ -199,3 +203,15 @@ let g:UltiSnipsJumpBackwardTrigger="<c-b>"
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 
+" *********************************** syntastic *******************************
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" *********************************** tagbar *******************************
+map <Leader>a :TagbarToggle<CR>

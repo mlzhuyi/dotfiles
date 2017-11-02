@@ -1,5 +1,6 @@
 # neovim
 [ -e ~/.config/nvim ] && rm -rf ~/.config/nvim
+mkdir ~/.config/nvim
 ln -sf `pwd`/vimrc ~/.config/nvim/init.vim
 curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 echo "Successfully deploy neovim config"

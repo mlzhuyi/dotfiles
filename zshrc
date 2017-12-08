@@ -86,7 +86,7 @@ export SKIP_DATA_LOAD='true'
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias vim="mvim -v"
 alias be="bundle exec"
+alias vim="exec_scmb_expand_args nvim"
 
 [ -s "/Users/yizhu/.scm_breeze/scm_breeze.sh" ] && source "/Users/yizhu/.scm_breeze/scm_breeze.sh"

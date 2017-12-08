@@ -19,7 +19,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'rking/ag.vim'
-Plug 'majutsushi/tagbar'
+"Plug 'majutsushi/tagbar'
 
 "lang
 Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
@@ -88,6 +88,8 @@ set virtualedit=onemore         "allow for cursor beyond last character
 set tags+=tags             "set tags
 set tags+=~/.rvm/gems/tags
 
+"Disable netrw to generate file
+let g:netrw_dirhistmax = 0
 " ================================= Vim Theme ==================================
 syntax enable                   "syntax highlighting
 set background=dark             "Color theme
@@ -174,7 +176,7 @@ nnoremap <leader>t :NERDTreeToggle<cr>
 autocmd VimEnter * NERDTree | wincmd p
 "autocmd vimenter * if !argc() | NERDTree | endif "Open nerdtree when no files specific"
 let NERDTreeChDirMode = 2
-let NERDTreeIgnore=['\.vim$', '\~$', '\.git$', '.jpg', '.png', '.gif', 'node_modules$', 'bower_components$', 'tags']
+let NERDTreeIgnore=['\~$', '\.git$', '.jpg', '.png', '.gif', 'node_modules$', 'bower_components$', 'tags', '.DS_Store']
 let g:nerdtree_tabs_open_on_gui_startup = 0
 let NERDTreeWinSize = 30
 let NERDTreeQuitOnOpen = 0
@@ -214,4 +216,4 @@ let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
 " *********************************** tagbar *******************************
-map <Leader>a :TagbarToggle<CR>
+"map <Leader>a :TagbarToggle<CR>

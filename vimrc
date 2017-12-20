@@ -6,6 +6,7 @@ filetype off
 call plug#begin('~/.vim/plugged')
 
 Plug 'altercation/vim-colors-solarized'
+Plug 'tomasr/molokai'
 Plug 'Yggdroot/indentLine'
 Plug 'kien/ctrlp.vim'
 Plug 'tpope/vim-surround'
@@ -93,7 +94,7 @@ let g:netrw_dirhistmax = 0
 " ================================= Vim Theme ==================================
 syntax enable                   "syntax highlighting
 set background=dark             "Color theme
-colorscheme solarized           "railscasts solarized
+colorscheme molokai           "railscasts solarized
 
 " ================================= Status Line ==================================
 "let g:airline#extensions#tabline#enabled = 1
@@ -173,7 +174,7 @@ let NERDSpaceDelims = 1
 
 " ********************************* NerdTree ********************************
 nnoremap <leader>t :NERDTreeToggle<cr>
-autocmd VimEnter * NERDTree | wincmd p
+"autocmd VimEnter * NERDTree | wincmd p
 "autocmd vimenter * if !argc() | NERDTree | endif "Open nerdtree when no files specific"
 let NERDTreeChDirMode = 2
 let NERDTreeIgnore=['\~$', '\.git$', '.jpg', '.png', '.gif', 'node_modules$', 'bower_components$', 'tags', '.DS_Store']

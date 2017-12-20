@@ -88,5 +88,8 @@ export SKIP_DATA_LOAD='true'
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias be="bundle exec"
 alias vim="exec_scmb_expand_args nvim"
+export VISUAL=nvim
+export EDITOR="$VISUAL"
+export GIT_EDITOR="$VISUAL"
 
 [ -s "/Users/yizhu/.scm_breeze/scm_breeze.sh" ] && source "/Users/yizhu/.scm_breeze/scm_breeze.sh"

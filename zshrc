@@ -1,5 +1,5 @@
 # Path to your oh-my-zsh installation.
-export ZSH=/Users/yizhu/.oh-my-zsh
+export ZSH=$HOME/.oh-my-zsh
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 # Set name of the theme to load.
@@ -92,4 +92,4 @@ export VISUAL=nvim
 export EDITOR="$VISUAL"
 export GIT_EDITOR="$VISUAL"
 
-[ -s "/Users/yizhu/.scm_breeze/scm_breeze.sh" ] && source "/Users/yizhu/.scm_breeze/scm_breeze.sh"
+[ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"

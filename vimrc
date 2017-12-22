@@ -10,7 +10,7 @@ Plug 'tomasr/molokai'
 Plug 'Yggdroot/indentLine'
 Plug 'kien/ctrlp.vim'
 Plug 'tpope/vim-surround'
-Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle'] }
+Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/nerdcommenter'
 Plug 'jistr/vim-nerdtree-tabs'
 Plug 'tpope/vim-endwise'
@@ -174,6 +174,14 @@ let NERDSpaceDelims = 1
 
 " ********************************* NerdTree ********************************
 nnoremap <leader>t :NERDTreeToggle<cr>
+function! OpenNerdTree()
+  if &modifiable && strlen(expand('%')) > 0 && !&diff
+    NERDTreeFind
+  else
+    NERDTreeToggle
+  endif
+endfunction
+nnoremap <silent> <C-\> :call OpenNerdTree()<CR>
 "autocmd VimEnter * NERDTree | wincmd p
 "autocmd vimenter * if !argc() | NERDTree | endif "Open nerdtree when no files specific"
 let NERDTreeChDirMode = 2

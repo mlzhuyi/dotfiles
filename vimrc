@@ -156,6 +156,7 @@ let g:indentLine_color_term = 239
 " ********************************* Ctrlp ********************************
 let g:ctrlp_map = '<C-p>'
 let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_show_hidden = 1
 let g:ctrlp_root_markers = ['.git','Gemfile','.vimrc','.bashrc', '.zshrc']
 let g:ctrlp_custom_ignore = {
      \'dir':  '\v[\/](\.(git|hg|svn)|node_modules|bower_components)$',

@@ -86,6 +86,7 @@ export SKIP_DATA_LOAD='true'
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+alias chrome="\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --allow-file-access-from-files"
 alias be="bundle exec"
 alias vim="nvim"
 export VISUAL=nvim

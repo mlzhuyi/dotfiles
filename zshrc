@@ -7,6 +7,11 @@ export LC_ALL="en_US.UTF-8"
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
 ZSH_THEME="self"
+
+JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_162.jdk/Contents/Home
+CLASSPATH=.:$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar
+export JAVA_HOME
+export CLASSPATH
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
@@ -89,6 +94,7 @@ export SKIP_DATA_LOAD='true'
 alias chrome="\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --allow-file-access-from-files"
 alias be="bundle exec"
 alias vim="nvim"
+alias gcz="git add . && git cz"
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export GIT_EDITOR="$VISUAL"

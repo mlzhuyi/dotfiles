@@ -17,6 +17,13 @@ echo "You can run :PlugInstall in your vim to install all plugins"
 ln -sf `pwd`/tmux.conf ~/.tmux.conf
 echo "Successfully deploy tmux config"
 
+# git
+npm install -g commitizen
+npm install lint-staged husky
+echo "Successfully install related tools for git"
+echo "You can edit your package.json to enable lint-staged or other commit linter"
+
+
 # oh-my-zsh
 ln -sf `pwd`/self.zsh-theme ~/.oh-my-zsh/themes/self.zsh-theme
 ln -sf `pwd`/zshrc ~/.zshrc
@@ -29,5 +36,3 @@ echo "Successfully deploy zsh config"
 
 echo "Finished all config tasks"
 exec /bin/zsh
-
-

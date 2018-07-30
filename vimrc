@@ -134,6 +134,10 @@ nnoremap <leader>q :q<CR>
 " Quickly save the current file
 nnoremap <leader>w :w<CR>
 
+" Qickly copy path of current file
+nmap ,ps :let @*=expand("%")<CR>
+nmap ,pl :let @*=expand("%:p")<CR>
+
 " Remap H and L (top, bottom of screen to left and right end of line)
 nnoremap H ^
 nnoremap L $

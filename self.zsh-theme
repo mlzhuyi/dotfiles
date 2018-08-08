@@ -27,6 +27,19 @@ TRAPALRM() {
     zle reset-prompt
 }
 
+function preexec() {
+  timer=${timer:-$SECONDS}
+}
+
+function precmd() {
+  if [ $timer ]; then
+    timer_show=$(($SECONDS - $timer))
+    export RPROMPT="%F{cyan}${timer_show}s %{$reset_color%}"
+    unset timer
+  else
+    unset RPROMPT
+  fi
+}
 
 ZSH_THEME_GIT_PROMPT_PREFIX="‹%{$fg[yellow]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="›%{$reset_color%}"

@@ -116,6 +116,9 @@ set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
 "The default leader is '\', but many people prefer ',' as it's in a standard location
 let mapleader = ','
 
+"Jump into tag if there is noly one match and present a list if there are multiple matches
+nnoremap <C-]> g<C-]>
+
 " ctrl + a
 noremap <C-a> ggVG
 inoremap <C-a> <C-O>ggVG

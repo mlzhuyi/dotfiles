@@ -1,3 +1,6 @@
+# gotty
+ln -sf `pwd`/gotty ~/.gotty
+
 # neovim
 [ -e ~/.config/nvim ] && rm -rf ~/.config/nvim
 mkdir ~/.config/nvim/

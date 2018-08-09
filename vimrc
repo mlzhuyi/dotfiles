@@ -16,11 +16,12 @@ Plug 'jistr/vim-nerdtree-tabs'
 Plug 'tpope/vim-endwise'
 Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+"Plug 'vim-airline/vim-airline'
+"Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-scripts/AutoComplPop'
 Plug 'rking/ag.vim'
 Plug 'w0rp/ale'
+Plug 'itchyny/lightline.vim'
 "Plug 'majutsushi/tagbar'
 
 "lang
@@ -99,9 +100,9 @@ colorscheme molokai           "railscasts solarized
 
 " ================================= Status Line ==================================
 "let g:airline#extensions#tabline#enabled = 1
-set laststatus=2
-let g:airline_powerline_fonts = 1
-let g:airline_theme='molokai'
+"set laststatus=2
+"let g:airline_powerline_fonts = 1
+"let g:airline_theme='molokai'
 
 if has('cmdline_info')
   set ruler                   " show the ruler
@@ -180,6 +181,43 @@ nnoremap <silent> <leader>gp :Git push<CR>
 
 " ********************************* Nerd Commenter ********************************
 let NERDSpaceDelims = 1
+
+" ********************************* lightline ********************************
+set laststatus=2
+let g:lightline = {
+      \ 'colorscheme': 'solarized',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'fugitive', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'fugitive': 'MyFugitive',
+      \   'readonly': 'MyReadonly',
+      \   'filename': 'MyFilename',
+      \ },
+      \ 'separator': { 'left': '>', 'right': '<' },
+      \ 'subseparator': { 'left': '>', 'right': '<' }
+      \ }
+function! MyReadonly()
+  if &filetype == "help"
+    return ""
+  elseif &readonly
+    return "l "
+  else
+    return ""
+  endif
+endfunction
+function! MyFugitive()
+  if exists("*fugitive#head")
+    let _ = fugitive#head()
+    return strlen(_) ? '| '._ : ''
+  endif
+  return ''
+endfunction
+function! MyFilename()
+  return ('' != MyReadonly() ? MyReadonly() . ' ' : '') .
+       \ ('' != expand('%') ? expand('%') : '[NoName]')
+endfunction
 
 " ********************************* NerdTree ********************************
 nnoremap <leader>t :NERDTreeToggle<cr>

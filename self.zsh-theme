@@ -18,14 +18,8 @@ local rvm_ruby='%{$fg[red]%}‹$(rvm-prompt i v g)›%{$reset_color%}'
 local git_info='$(_git_prompt_info)%{$reset_color%}'
 
 
-setopt PROMPT_SUBST
 PROMPT="${user_host} ${current_dir} ${rvm_ruby} ${git_info}:<%D{%Y-%m-%d %T}>
 ~> "
-TMOUT=1
-
-TRAPALRM() {
-    zle reset-prompt
-}
 
 function preexec() {
   timer=${timer:-$SECONDS}

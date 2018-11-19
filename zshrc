@@ -8,10 +8,8 @@ export LC_ALL="en_US.UTF-8"
 # time that oh-my-zsh is loaded.
 ZSH_THEME="self"
 
-JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_162.jdk/Contents/Home
-CLASSPATH=.:$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar
-export JAVA_HOME
-export CLASSPATH
+export GOPATH=$HOME/go
+export PATH=$PATH:$HOME/go/bin:$GOPATH/bin
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
@@ -68,7 +66,6 @@ source $ZSH/oh-my-zsh.sh
 
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
-export SKIP_DATA_LOAD='true'
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -98,5 +95,12 @@ alias gcz="git add . && git cz"
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export GIT_EDITOR="$VISUAL"
+alias kube_dev="kubectl --context dev1.k8s.local -n backend"
+
+# bazel related
+alias blb='bazel build -c opt'
+alias blt='bazel test -c opt --test_output=errors --keep_going'
+alias blr='bazel run -c opt'
 
 [ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"

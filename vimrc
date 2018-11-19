@@ -18,7 +18,8 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
 "Plug 'vim-airline/vim-airline'
 "Plug 'vim-airline/vim-airline-themes'
-Plug 'vim-scripts/AutoComplPop'
+"Plug 'Valloric/YouCompleteMe'
+Plug 'Shougo/deoplete.nvim'
 Plug 'rking/ag.vim'
 Plug 'w0rp/ale'
 Plug 'itchyny/lightline.vim'
@@ -32,6 +33,10 @@ Plug 'tpope/vim-fugitive'
 Plug 'Shougo/echodoc.vim'
 Plug 'SirVer/ultisnips'
 Plug 'vim-ruby/vim-ruby'
+Plug 'hashivim/vim-terraform'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'nsf/gocode', { 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
+
 "Plug 'vim-syntastic/syntastic'
 
 call plug#end()
@@ -52,6 +57,7 @@ set wildmode=list:longest,full  " command <Tab> completion, list matches, then l
 set whichwrap=b,s,h,l,<,>,[,]   " backspace and cursor keys wrap to
 set scrolljump=5                " lines to scroll when cursor leaves screen
 set scrolloff=3                 " minimum lines to keep above and below cursor
+set spell
 "folding settings
 set foldmethod=indent
 set foldenable
@@ -134,6 +140,7 @@ map <C-L> <C-W>l
 
 " Quickly close the current window
 nnoremap <leader>q :q<CR>
+nnoremap <leader>Q :q!<CR>
 
 " Quickly save the current file
 nnoremap <leader>w :w<CR>
@@ -232,7 +239,7 @@ nnoremap <silent> <C-\> :call OpenNerdTree()<CR>
 "autocmd VimEnter * NERDTree | wincmd p
 "autocmd vimenter * if !argc() | NERDTree | endif "Open nerdtree when no files specific"
 let NERDTreeChDirMode = 2
-let NERDTreeIgnore=['\~$', '\.git$', '.jpg', '.png', '.gif', 'node_modules$', 'bower_components$', 'tags', '.DS_Store']
+let NERDTreeIgnore=['\~$', '\.git$', '.jpg$', '.png$', 'node_modules$', 'bower_components$', 'tags', '.DS_Store']
 let g:nerdtree_tabs_open_on_gui_startup = 0
 let NERDTreeWinSize = 30
 let NERDTreeQuitOnOpen = 0
@@ -282,3 +289,6 @@ let g:ale_set_highlights = 0
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 map <Leader>a :ALEToggle<CR>
+
+" *********************************** deoplete *******************************
+let g:deoplete#enable_at_startup = 1

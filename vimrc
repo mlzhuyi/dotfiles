@@ -23,7 +23,7 @@ Plug 'Shougo/deoplete.nvim'
 Plug 'rking/ag.vim'
 Plug 'w0rp/ale'
 Plug 'itchyny/lightline.vim'
-"Plug 'majutsushi/tagbar'
+Plug 'majutsushi/tagbar'
 
 "lang
 Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
@@ -279,7 +279,34 @@ let g:UltiSnipsEditSplit="vertical"
 "let g:syntastic_check_on_wq = 0
 
 " *********************************** tagbar *******************************
-"map <Leader>a :TagbarToggle<CR>
+map <Leader>b :TagbarToggle<CR>
+let g:tagbar_type_go = {
+	\ 'ctagstype' : 'go',
+	\ 'kinds'     : [
+		\ 'p:package',
+		\ 'i:imports:1',
+		\ 'c:constants',
+		\ 'v:variables',
+		\ 't:types',
+		\ 'n:interfaces',
+		\ 'w:fields',
+		\ 'e:embedded',
+		\ 'm:methods',
+		\ 'r:constructor',
+		\ 'f:functions'
+	\ ],
+	\ 'sro' : '.',
+	\ 'kind2scope' : {
+		\ 't' : 'ctype',
+		\ 'n' : 'ntype'
+	\ },
+	\ 'scope2kind' : {
+		\ 'ctype' : 't',
+		\ 'ntype' : 'n'
+	\ },
+	\ 'ctagsbin'  : 'gotags',
+	\ 'ctagsargs' : '-sort -silent'
+\ }
 
 " *********************************** ale *******************************
 "let g:ale_sign_column_always = 1

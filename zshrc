@@ -9,7 +9,7 @@ export LC_ALL="en_US.UTF-8"
 ZSH_THEME="self"
 
 export GOPATH=$HOME/go
-export PATH=$PATH:$HOME/go/bin:$GOPATH/bin
+export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 

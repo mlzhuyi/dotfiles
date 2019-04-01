@@ -36,11 +36,13 @@ Plug 'vim-ruby/vim-ruby'
 Plug 'hashivim/vim-terraform'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'nsf/gocode', { 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
+Plug 'jodosha/vim-godebug'
 
 "Plug 'vim-syntastic/syntastic'
 
 call plug#end()
 
+"set autowrite
 set textwidth=120
 set fo=mbtcrolq
 set backspace=indent,eol,start  " backspace for dummies
@@ -72,7 +74,7 @@ set listchars=tab:,.,trail:.,extends:#,nbsp:. " Highlight problematic whitespace
 set visualbell                  "no sounds
 set autoread                    "reload files changed outside
 set showmode                    "display the current mode
-set cursorline                  "highlight current line
+set cursorline cursorcolumn     "highlight current line
 set hidden                      "buffers can exist in the background
 set linebreak                   "wrap lines at convenient points
 set autoindent                  " indent at the same level of the previous line
@@ -319,3 +321,5 @@ map <Leader>a :ALEToggle<CR>
 
 " *********************************** deoplete *******************************
 let g:deoplete#enable_at_startup = 1
+
+let g:go_fmt_command = "goimports"

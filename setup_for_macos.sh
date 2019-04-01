@@ -15,7 +15,7 @@ echo "Successfully deploy neovim config"
 echo "You can run :PlugInstall in your vim to install all plugins"
 
 # tmux
-brew install tmux
+which tmux || brew install tmux
 ln -sf `pwd`/tmux.conf ~/.tmux.conf
 echo "Successfully deploy tmux config"
 

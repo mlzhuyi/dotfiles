@@ -52,7 +52,7 @@ export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git autojump zsh-autosuggestions zsh-syntax-highlighting gem bundler ruby rake rails)
+plugins=(git autojump zsh-autosuggestions zsh-syntax-highlighting gem bundler ruby rake rails tmux)
 
 #autojump_conf
 [[ -s ~/.autojump/etc/profile.d/autojump.sh ]] && . ~/.autojump/etc/profile.d/autojump.sh

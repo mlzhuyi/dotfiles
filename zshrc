@@ -10,6 +10,7 @@ ZSH_THEME="self"
 
 export GOPATH=$HOME/go
 export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+export GO111MODULE=auto
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 

@@ -23,6 +23,7 @@ echo "Successfully deploy tmux config"
 which npm || brew install npm
 npm install -g commitizen
 npm install -g lint-staged husky
+ln -sf `pwd`/czrc ~/.czrc
 echo "Successfully install related tools for git"
 echo "You can edit your package.json to enable lint-staged or other commit linter"
 

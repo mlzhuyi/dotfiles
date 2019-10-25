@@ -18,8 +18,8 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
 "Plug 'vim-airline/vim-airline'
 "Plug 'vim-airline/vim-airline-themes'
-"Plug 'Valloric/YouCompleteMe'
-Plug 'Shougo/deoplete.nvim'
+Plug 'Valloric/YouCompleteMe'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins', 'for': 'ruby' }
 Plug 'rking/ag.vim'
 Plug 'w0rp/ale'
 Plug 'itchyny/lightline.vim'
@@ -261,6 +261,11 @@ if !exists('g:easy_align_delimeters')
   let g:easy_align_delimeters = {}
 endif
 let g:easy_align_delimeters['#'] = { 'pattern': '#', 'ignore_groups': ['String'] }
+
+" *********************************** YouCompleteMe *******************************
+let g:ycm_key_list_select_completion = ['<C-n>', '<space>']
+let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+let g:SuperTabDefaultCompletionType = '<C-n>'
 
 " *********************************** Ultisnips *******************************
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.

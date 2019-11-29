@@ -100,8 +100,9 @@ alias kube_dev="kubectl --context dev1.k8s.local -n backend"
 
 # bazel related
 alias blb='bazel build -c opt'
-alias blt='bazel test -c opt --test_output=errors --keep_going'
+alias blt='bazel test --action_env="PROJECT_ROOT=$PWD" -c opt --test_output=errors --keep_going'
 alias blr='bazel run -c opt'
+alias blball='blb //... && gazebo -l . && go build'
 
 [ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"

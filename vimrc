@@ -19,11 +19,14 @@ Plug 'junegunn/vim-easy-align'
 "Plug 'vim-airline/vim-airline'
 "Plug 'vim-airline/vim-airline-themes'
 Plug 'Valloric/YouCompleteMe'
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins', 'for': 'ruby' }
 Plug 'rking/ag.vim'
 Plug 'w0rp/ale'
 Plug 'itchyny/lightline.vim'
 Plug 'majutsushi/tagbar'
+
+"Snips
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 
 "lang
 Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
@@ -31,7 +34,6 @@ Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
 Plug 'tpope/vim-fugitive'
 Plug 'Shougo/echodoc.vim'
-Plug 'SirVer/ultisnips'
 Plug 'vim-ruby/vim-ruby'
 Plug 'hashivim/vim-terraform'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -194,7 +196,7 @@ let NERDSpaceDelims = 1
 " ********************************* lightline ********************************
 set laststatus=2
 let g:lightline = {
-      \ 'colorscheme': 'solarized',
+      \ 'colorscheme': 'powerline',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'fugitive', 'readonly', 'filename', 'modified' ] ]
@@ -266,6 +268,8 @@ let g:easy_align_delimeters['#'] = { 'pattern': '#', 'ignore_groups': ['String']
 let g:ycm_key_list_select_completion = ['<C-n>', '<space>']
 let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
 let g:SuperTabDefaultCompletionType = '<C-n>'
+let g:ycm_autoclose_preview_window_after_completion = 1
+let g:ycm_show_diagnostics_ui = 0
 
 " *********************************** Ultisnips *******************************
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
@@ -329,7 +333,12 @@ nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 map <Leader>a :ALEToggle<CR>
 
-" *********************************** deoplete *******************************
-let g:deoplete#enable_at_startup = 1
-
+" *********************************** vim-go *******************************
 let g:go_fmt_command = "goimports"
+
+" *********************************** ultisnips *******************************
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
+let g:UltiSnipsJumpBackwardTrigger="<c-k>"
+let g:UltiSnipsEditSplit="vertical"
+let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/UltiSnips', 'UltiSnips']

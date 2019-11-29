@@ -24,6 +24,7 @@ curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.g
 vim +PlugInstall +q +q
 vim +GoInstallBinaries +q
 echo "Successfully deploy neovim config"
+ln -sf `pwd`/UltiSnips ~/.vim/UltiSnips
 
 # tmux
 which tmux || brew install tmux

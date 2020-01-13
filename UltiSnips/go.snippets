@@ -1,6 +1,6 @@
 snippet session "set default session for xorm" b
-	if session == nil {
-		session = global.MasterEngine.NewSession()
-		defer session.Close()
-	}
+if session == nil {
+	session = global.MasterEngine.NewSession()
+	defer session.Close()
+}
 endsnippet

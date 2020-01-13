@@ -12,6 +12,7 @@ brew install autojump &> /dev/null
 echo "Successfully deploy zsh config"
 
 # gotty
+which gotty || brew install yudai/gotty/gotty
 ln -sf `pwd`/gotty ~/.gotty
 
 # neovim

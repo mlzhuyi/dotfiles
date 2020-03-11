@@ -21,6 +21,8 @@ which gotags || brew install gotags
 [ -e ~/.config/nvim ] && rm -rf ~/.config/nvim
 mkdir ~/.config/nvim/
 ln -sf `pwd`/vimrc ~/.config/nvim/init.vim
+ln -sf `pwd`/coc-settings.json ~/.config/nvim/coc-settings.json
+curl https://github.com/Karmenzind/monaco-nerd-fonts/blob/master/fonts/Monaco%20Nerd%20Font%20Complete%20Mono.otf > /Library/Fonts/Monaco%20Nerd%20Font%20Complete%20Mono.otf
 curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall +q +q
 vim +GoInstallBinaries +q

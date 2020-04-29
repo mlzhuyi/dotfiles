@@ -1,5 +1,6 @@
 # brew
 which brew || /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+# You can set HOMEBREW_NO_AUTO_UPDATE=1 to speed up `brew install`
 
 # oh-my-zsh
 which zsh || sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"

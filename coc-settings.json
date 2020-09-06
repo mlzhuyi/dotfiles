@@ -1,6 +1,11 @@
-"languageserver": {
-    "golang": {
-      "command": "/Users/Liao/Projects/go/bin/gopls",
-      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
-      "filetypes": ["go"]
-    }
+{
+  "languageserver": {
+      "golang": {
+        "command": "gopls",
+        "rootPatterns": ["go.mod"],
+        "filetypes": ["go"],
+        "trace.server": "verbose"
+      }
+  },
+  "list.source.grep.command": "ag"
+}

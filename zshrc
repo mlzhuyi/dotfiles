@@ -11,6 +11,8 @@ ZSH_THEME="self"
 export GOPATH=$HOME/go
 export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 export GO111MODULE=auto
+export GOPROXY=goproxy.mihoyo.com,direct
+export GONOSUMDB=gopkg.mihoyo.com
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
@@ -53,7 +55,7 @@ export GO111MODULE=auto
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git autojump zsh-autosuggestions zsh-syntax-highlighting gem bundler ruby rake rails tmux)
+plugins=(git autojump zsh-autosuggestions zsh-syntax-highlighting gem bundler ruby rake rails)
 
 #autojump_conf
 [[ -s ~/.autojump/etc/profile.d/autojump.sh ]] && . ~/.autojump/etc/profile.d/autojump.sh
@@ -66,7 +68,8 @@ plugins=(git autojump zsh-autosuggestions zsh-syntax-highlighting gem bundler ru
 source $ZSH/oh-my-zsh.sh
 
 # You may need to manually set your language environment
-# export LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -106,3 +109,6 @@ alias blball='blb //... && gazebo -l . && go build'
 
 [ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+
+[ -s "/Users/yi.zhu/.scm_breeze/scm_breeze.sh" ] && source "/Users/yi.zhu/.scm_breeze/scm_breeze.sh"
+source ~/.bash_profile

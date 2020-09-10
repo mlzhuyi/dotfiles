@@ -12,21 +12,32 @@ git clone git://github.com/scmbreeze/scm_breeze.git ~/.scm_breeze && ~/.scm_bree
 brew install autojump &> /dev/null
 echo "Successfully deploy zsh config"
 
+# ag
+which ag || brew install ag
+
+# go
+which go || brew install go
+
 # gotty
 which gotty || brew install yudai/gotty/gotty
 ln -sf `pwd`/gotty ~/.gotty
 
+# ctags
+brew install ctags-exuberant
+
 # neovim
-which nvim || brew install neovim
+which nvim || (brew install neovim && pip3 install neovim)
 which gotags || brew install gotags
 [ -e ~/.config/nvim ] && rm -rf ~/.config/nvim
 mkdir ~/.config/nvim/
 ln -sf `pwd`/vimrc ~/.config/nvim/init.vim
 ln -sf `pwd`/coc-settings.json ~/.config/nvim/coc-settings.json
-curl https://github.com/Karmenzind/monaco-nerd-fonts/blob/master/fonts/Monaco%20Nerd%20Font%20Complete%20Mono.otf > /Library/Fonts/Monaco%20Nerd%20Font%20Complete%20Mono.otf
+curl https://github.com/Karmenzind/monaco-nerd-fonts/blob/master/fonts/Monaco%20Nerd%20Font%20Complete%20Mono.otf > ~/Library/Fonts/'Monaco Nerd Font Complete Mono.otf'
+curl https://gist.github.com/ymjing/c788f85a654b2d7581d8/file-monaco-for-powerline-ttf > ~/Library/Fonts/'Monaco for Powerline.otf'
 curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall +q +q
 vim +GoInstallBinaries +q
+vim +"CocInstall coc-lists" +q
 echo "Successfully deploy neovim config"
 ln -sf `pwd`/UltiSnips ~/.vim/UltiSnips
 

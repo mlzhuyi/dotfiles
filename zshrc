@@ -10,9 +10,10 @@ ZSH_THEME="self"
 
 export GOPATH=$HOME/go
 export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
-export GO111MODULE=auto
+export GO111MODULE=on
 export GOPROXY=goproxy.mihoyo.com,direct
 export GONOSUMDB=gopkg.mihoyo.com
+export GOSUMDB=sum.golang.google.cn
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
@@ -112,3 +113,6 @@ alias blball='blb //... && gazebo -l . && go build'
 
 [ -s "/Users/yi.zhu/.scm_breeze/scm_breeze.sh" ] && source "/Users/yi.zhu/.scm_breeze/scm_breeze.sh"
 source ~/.bash_profile
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"

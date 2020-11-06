@@ -25,6 +25,7 @@ Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'kristijanhusak/defx-icons'
 Plug 'kristijanhusak/defx-git'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'voldikss/vim-codelf'
 
 "Snips
 Plug 'SirVer/ultisnips'
@@ -177,7 +178,7 @@ endif
 let g:indentLine_color_term = 239
 
 " ********************************* Ctrlp ********************************
-let g:ctrlp_map = '<C-p>'
+let g:ctrlp_map = '<space>p'
 let g:ctrlp_working_path_mode = 'ra'
 let g:ctrlp_show_hidden = 1
 let g:ctrlp_root_markers = ['.git','Gemfile','.vimrc','.bashrc', '.zshrc']
@@ -334,7 +335,7 @@ call defx#custom#option('_', {
       \ 'winwidth': 25,
       \ 'split': 'vertical',
       \ 'direction': 'topleft',
-      \ 'show_ignored_files': 1,
+      \ 'show_ignored_files': 0,
       \ 'columns': 'git:indent:icons:filename:type',
       \ 'buffer_name': '',
       \ 'toggle': 1,
@@ -508,13 +509,13 @@ augroup end
 
 " Applying codeAction to the selected region.
 " Example: `<leader>aap` for current paragraph
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
+"xmap <leader>a  <Plug>(coc-codeaction-selected)
+"nmap <leader>a  <Plug>(coc-codeaction-selected)
 
 " Remap keys for applying codeAction to the current buffer.
-nmap <leader>ac  <Plug>(coc-codeaction)
+"nmap <leader>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
-nmap <leader>af  <Plug>(coc-fix-current)
+"nmap <leader>af  <Plug>(coc-fix-current)
 
 " Map function and class text objects
 " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
@@ -540,7 +541,6 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-
 " Add (Neo)Vim's native statusline support.
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
 " provide custom statusline: lightline.vim, vim-airline.
@@ -549,7 +549,7 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 "" Using CocList
 nnoremap <silent> <space>g :<C-u>CocList<CR>
 "" search file
-nnoremap <silent> <space>p  :<C-u>CocList files<cr>
+nnoremap <silent> <C-p>  :<C-u>CocList files<cr>
 "" grep
 nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>').' words'<CR>
 
@@ -569,3 +569,7 @@ nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>'
 "nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 "" Resume latest coc list
 "noremap <silent> <space>p  :<C-u>CocListResume<CR>
+
+"" *********************************** codelf *******************************
+inoremap <silent> <F3> <C-R>=codelf#start()<CR>
+nnoremap <silent> <F3> :call codelf#start()<CR>

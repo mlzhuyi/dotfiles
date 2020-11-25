@@ -257,13 +257,6 @@ let g:easy_align_delimeters['#'] = { 'pattern': '#', 'ignore_groups': ['String']
 "let g:ycm_autoclose_preview_window_after_completion = 1
 "let g:ycm_show_diagnostics_ui = 0
 
-" *********************************** Ultisnips *******************************
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<c-b>"
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
-
 " *********************************** syntastic *******************************
 "set statusline+=%#warningmsg#
 "set statusline+=%{SyntasticStatuslineFlag()}

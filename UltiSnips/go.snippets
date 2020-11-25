@@ -4,3 +4,15 @@ if session == nil {
 	defer session.Close()
 }
 endsnippet
+
+snippet err1 "return err and log it" b
+if err != nil {
+	log.WithCode(cerrors.GetAlertCode(err)).
+		Error(ctx, "$1", zap.Error(err))
+	return nil, core.${2:SystemError}(-1, "${3:System error}")
+}
+endsnippet
+
+snippet timeLayout "time layout" i
+"2006-01-02 15:04:05"
+endsnippet

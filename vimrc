@@ -33,7 +33,7 @@ Plug 'honza/vim-snippets'
 
 "lang
 Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
-Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
+"Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
 Plug 'tpope/vim-fugitive'
 Plug 'Shougo/echodoc.vim'

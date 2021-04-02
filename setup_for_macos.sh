@@ -38,6 +38,7 @@ curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.g
 vim +PlugInstall +q +q
 vim +GoInstallBinaries +q
 vim +"CocInstall coc-lists" +q
+npm -g install instant-markdown-d
 echo "Successfully deploy neovim config"
 ln -sf `pwd`/UltiSnips ~/.vim/UltiSnips
 

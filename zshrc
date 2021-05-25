@@ -8,6 +8,10 @@ export LC_ALL="en_US.UTF-8"
 # time that oh-my-zsh is loaded.
 ZSH_THEME="self"
 
+# proxy list
+alias proxy='export all_proxy=socks5://127.0.0.1:10010'
+alias unproxy='unset all_proxy'
+
 export GOPATH=$HOME/go
 export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 export GO111MODULE=on

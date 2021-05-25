@@ -33,8 +33,6 @@ Plug 'honza/vim-snippets'
 
 "lang
 Plug 'tpope/vim-rails', { 'for': ['ruby', 'haml'] }
-"Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
-Plug 'suan/vim-instant-markdown', { 'for': 'markdown' }
 Plug 'tpope/vim-fugitive'
 Plug 'Shougo/echodoc.vim'
 Plug 'vim-ruby/vim-ruby'
@@ -42,6 +40,12 @@ Plug 'hashivim/vim-terraform'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'nsf/gocode', { 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
 Plug 'jodosha/vim-godebug'
+
+" markdown
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plug 'mzlogin/vim-markdown-toc'
 
 "Plug 'vim-syntastic/syntastic'
 
@@ -235,12 +239,27 @@ function! MyFilename()
        \ ('' != expand('%') ? expand('%') : '[NoName]')
 endfunction
 
-" *********************************** Vim Instant Markdown *******************************
-let g:instant_markdown_slow = 1
-let g:instant_markdown_autostart = 0
-let g:instant_markdown_open_to_the_world = 1
-map <Leader>m :InstantMarkdownPreview<CR>
-autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+" *********************************** Markdown *******************************
+" vim-markdown
+let g:vim_markdown_math = 1
+let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_conceal=0
+
+" Vim-markdown-toc
+"在当前光标后生成目录 :GenTocMarked
+"更新目录 :UpdateToc
+let g:vmt_auto_update_on_save = 1
+function RToc()
+    exe "/-toc .* -->"
+    let lstart=line('.')
+    exe "/-toc -->"
+    let lnum=line('.')
+    execute lstart.",".lnum."g/           /d"
+endfunction
+
+" markdown-preview
+map <Leader>m :MarkdownPreviewToggle<CR>
+let g:mkdp_markdown_css=''
 
 " *********************************** Vim Easy Align *******************************
 vmap <Leader>a <Plug>(EasyAlign)
@@ -249,23 +268,6 @@ if !exists('g:easy_align_delimeters')
   let g:easy_align_delimeters = {}
 endif
 let g:easy_align_delimeters['#'] = { 'pattern': '#', 'ignore_groups': ['String'] }
-
-" *********************************** YouCompleteMe *******************************
-"let g:ycm_key_list_select_completion = ['<C-n>', '<space>']
-"let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
-"let g:SuperTabDefaultCompletionType = '<C-n>'
-"let g:ycm_autoclose_preview_window_after_completion = 1
-"let g:ycm_show_diagnostics_ui = 0
-
-" *********************************** syntastic *******************************
-"set statusline+=%#warningmsg#
-"set statusline+=%{SyntasticStatuslineFlag()}
-"set statusline+=%*
-
-"let g:syntastic_always_populate_loc_list = 1
-"let g:syntastic_auto_loc_list = 1
-"let g:syntastic_check_on_open = 1
-"let g:syntastic_check_on_wq = 0
 
 " *********************************** tagbar *******************************
 map <Leader>b :TagbarToggle<CR>

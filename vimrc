@@ -317,7 +317,7 @@ let g:go_gopls_enabled = 0
 " *********************************** defx *******************************
 nmap <silent> <Leader>t :Defx <cr>
 nmap <silent> <C-\> :Defx -resume -search=`expand('%:p')` `getcwd()` <cr>
-nnoremap <silent><buffer><expr> .     defx#do_action('toggle_ignored_files')     " 显示隐藏文件
+nnoremap <silent><buffer><expr> \     defx#do_action('toggle_ignored_files')     " 显示隐藏文件
 call defx#custom#option('_', {
       \ 'winwidth': 25,
       \ 'split': 'vertical',
@@ -599,3 +599,4 @@ nmap <silent> <Leader>c= :Tab /\/\/<cr>
 "" *********************************** copilot *******************************
 imap <C-j> <Plug>(copilot-next)
 imap <C-k> <Plug>(copilot-previous)
+

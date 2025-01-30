@@ -13,12 +13,14 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-m
 git clone https://github.com/scmbreeze/scm_breeze.git ~/.scm_breeze && ~/.scm_breeze/install.sh
 brew install autojump &> /dev/null
 echo "Successfully deploy zsh config"
+# if you run `omz udpate` failed with error `unable to connect to github.com`, you can run following command
+# git config --global url."https://".insteadOf git://
 
 # ag
 which ag || brew install ag
 
 # go
-which gvm || $(zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)) && source $GVM_ROOT/scripts/gvm
+which gvm || $(zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/13b10b604255360a9a559c2ea23ba42e75cb536e/binscripts/gvm-installer)) && source $GVM_ROOT/scripts/gvm
 which go || gvm use 1.17.11 --default
 which dot || brew install graphviz
 
@@ -43,18 +45,22 @@ which gotags || brew install gotags
 mkdir ~/.config/nvim/
 ln -sf `pwd`/vimrc ~/.config/nvim/init.vim
 ln -sf `pwd`/coc-settings.json ~/.config/nvim/coc-settings.json
-cp `pws`/"Monaco Nerd Font Complete Mono.otf" ~/Library/Fonts/
-cp `pws`/"Monaco for Powerline.ttf" ~/Library/Fonts/
 curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall +q +q
-vim +"CocInstall coc-lists coc-go coc-diagnostic cpc-highlight coc-rust-analyzer" +q
+vim +"CocInstall coc-lists coc-go coc-diagnostic coc-highlight coc-rust-analyzer" +q
 npm -g install instant-markdown-d
 echo "Successfully deploy neovim config"
 ln -sf `pwd`/UltiSnips ~/.vim/UltiSnips
 
+# fonts
+cp `pwd`/"Monaco Nerd Font Mono.otf" ~/Library/Fonts/
+# then set font of iterm: settings -> profiles -> text -> font
+
+
 # tmux
 which tmux || brew install tmux
 ln -sf `pwd`/tmux.conf ~/.tmux.conf
+ln -sf `pwd`/tmux.conf.local ~/.tmux.conf.local
 echo "Successfully deploy tmux config"
 
 # git

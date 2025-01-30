@@ -27,7 +27,6 @@ Plug 'github/copilot.vim'
 
 " coc
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'IngoMeyer441/coc_current_word'
 
 "Snips
 Plug 'SirVer/ultisnips'
@@ -49,6 +48,8 @@ Plug 'mzlogin/vim-markdown-toc'
 "Plug 'vim-syntastic/syntastic'
 
 call plug#end()
+
+set termguicolors
 
 "set autowrite
 set textwidth=120
@@ -119,10 +120,6 @@ let g:netrw_dirhistmax = 0
 syntax enable                   "syntax highlighting
 set background=dark             "Color theme
 colorscheme molokai           "railscasts solarized
-
-" replace cursorcolumn & cursorline with molokai config
-hi CursorLine term=NONE cterm=NONE ctermbg=237
-hi CursorColumn term=NONE cterm=NONE ctermbg=237
 
 " ================================= Status Line ==================================
 "let g:airline#extensions#tabline#enabled = 1
@@ -484,9 +481,20 @@ endfunction
 
 " Highlight the symbol and its references when holding the cursor.
 autocmd CursorHold * silent call CocActionAsync('highlight')
-let g:coc_current_word_highlight_delay = 500
-autocmd BufAdd NERD_tree_* :let b:coc_current_word_disabled_in_this_buffer = 1
-hi CurrentWord term=NONE cterm=NONE ctermbg=1
+"hi CocHighlightText guifg=#XXXXXX guibg=#XXXXXX gui=underline,bold,italic ctermfg=XXX ctermbg=XXX cterm=underline,bold,italic
+"                           └┴┴┴┴┴──┐     └┴┴┴┴┤     └┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┤         └┴┤         └┴┤       └┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┴┤
+"        gui-vim font color hex code│          │   gui-vim special styles│           │           │ console-vim special styles│
+"        ───────────────────────────┘          │   ──────────────────────┘           │           │ ──────────────────────────┘
+"             gui-vim background color hex code│     console-vim font term color code│           │
+"             ─────────────────────────────────┘     ────────────────────────────────┘           │
+"                                                          console-vim background term color code│
+"                                                          ──────────────────────────────────────┘
+hi CocHighlightText guifg=LightMagenta ctermfg=LightMagenta gui=underline
+
+" replace cursorcolumn & cursorline with molokai config
+hi CursorLine term=NONE cterm=NONE ctermbg=237
+hi CursorColumn term=NONE cterm=NONE ctermbg=237
+
 
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
@@ -565,6 +573,7 @@ nnoremap <silent> <C-p>  :<C-u>CocList files<cr>
 "" grep
 nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>').' words'<CR>
 
+" CocList shortcuts
 "" Show all diagnostics
 "nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
 "" Manage extensions

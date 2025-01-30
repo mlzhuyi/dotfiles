@@ -9,8 +9,8 @@ export LC_ALL="en_US.UTF-8"
 ZSH_THEME="self"
 
 # proxy list
-alias proxy='export all_proxy=socks5://127.0.0.1:10010'
-alias unproxy='unset all_proxy'
+alias proxy='export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890'
+alias unproxy='unset all_proxy && unset https_proxy && unset http_proxy'
 
 export GO111MODULE=on
 export GOSUMDB=sum.golang.google.cn
@@ -118,5 +118,9 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
-eval $(thefuck --alias)
+eval "$(/usr/local/bin/brew shellenv)"
+# eval $(thefuck --alias)
+
+[[ -s "/Users/mlzhuyi/.gvm/scripts/gvm" ]] && source "/Users/mlzhuyi/.gvm/scripts/gvm"
+
+[ -s "/Users/mlzhuyi/.scm_breeze/scm_breeze.sh" ] && source "/Users/mlzhuyi/.scm_breeze/scm_breeze.sh"

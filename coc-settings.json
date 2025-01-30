@@ -4,9 +4,14 @@
     "go": "golangci-lint"
   },
   // "diagnostic.messageTarget": "echo",
-  "go.goplsPath": "~/.gvm/pkgsets/go1.17.11/global/bin/gopls",
+
   "colors.enable": true,
+  "highlight.trace": "verbose",
+
   "list.source.grep.command": "ag",
+
+  // use 1~9 to pick option quickly in list mode
+  "list.source.files.defaultOptions": ["--number-select"],
   "suggest.noselect": true,
   "workspace.ignoredFolders": [
     "$HOME",

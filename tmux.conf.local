@@ -1,0 +1,31 @@
+# enable mouse to select window and pane
+set -g mouse on
+
+# override command sequences
+set -g escape-time 0
+
+# split current window horizontally
+bind - split-window -v
+bind-key v split-window -h -p 50 -c "#{pane_current_path}"
+# split current window vertically
+bind _ split-window -h
+bind-key s split-window -p 50 -c "#{pane_current_path}"
+
+# pane resizing
+# override pane resizing
+bind H resize-pane -L 10
+bind J resize-pane -D 5
+bind K resize-pane -U 5
+bind L resize-pane -R 10
+
+# ssh config 
+bind S command-prompt -p "ssh to:" "new-window -n %1 'ssh %1'"
+
+# set keys as vi mode
+setw -g mode-keys vi
+
+# set powerline separator
+tmux_conf_theme_left_separator_main='\uE0B0'
+tmux_conf_theme_left_separator_sub='\uE0B1'
+tmux_conf_theme_right_separator_main='\uE0B2'
+tmux_conf_theme_right_separator_sub='\uE0B3'

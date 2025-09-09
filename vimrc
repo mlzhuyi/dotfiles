@@ -3,7 +3,7 @@
 set nocompatible
 filetype off
 
-call plug#begin('~/.vim/plugged')
+call plug#begin('~/.nvim/plugged')
 
 Plug 'altercation/vim-colors-solarized'
 Plug 'tomasr/molokai'
@@ -23,7 +23,6 @@ Plug 'kristijanhusak/defx-git'
 Plug 'ryanoasis/vim-devicons'
 Plug 'voldikss/vim-codelf'
 Plug 'godlygeek/tabular'
-Plug 'github/copilot.vim'
 
 " coc
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -38,7 +37,27 @@ Plug 'tpope/vim-fugitive'
 Plug 'Shougo/echodoc.vim'
 Plug 'vim-ruby/vim-ruby'
 Plug 'hashivim/vim-terraform'
-" Plug 'jodosha/vim-godebug'
+Plug 'sebdah/vim-delve'
+
+" ================================= avante ==================================
+" Deps
+Plug 'nvim-lua/plenary.nvim'
+Plug 'MunifTanjim/nui.nvim'
+Plug 'MeanderingProgrammer/render-markdown.nvim'
+
+" Optional deps
+Plug 'hrsh7th/nvim-cmp'
+Plug 'nvim-tree/nvim-web-devicons' "or Plug 'echasnovski/mini.icons'
+Plug 'HakonHarnes/img-clip.nvim'
+Plug 'zbirenbaum/copilot.lua'
+Plug 'stevearc/dressing.nvim' " for enhanced input UI
+Plug 'folke/snacks.nvim' " for modern input UI
+Plug 'github/copilot.vim'
+
+" Yay, pass source=true if you want to build from source
+Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': 'make' }
+
+" =========================================================================
 
 " markdown
 " Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
@@ -276,32 +295,15 @@ let g:easy_align_delimeters['#'] = { 'pattern': '#', 'ignore_groups': ['String']
 " *********************************** tagbar *******************************
 map <Leader>b :TagbarToggle<CR>
 let g:tagbar_type_go = {
-	\ 'ctagstype' : 'go',
-	\ 'kinds'     : [
-		\ 'p:package',
-		\ 'i:imports:1',
-		\ 'c:constants',
-		\ 'v:variables',
-		\ 't:types',
-		\ 'n:interfaces',
-		\ 'w:fields',
-		\ 'e:embedded',
-		\ 'm:methods',
-		\ 'r:constructor',
-		\ 'f:functions'
-	\ ],
-	\ 'sro' : '.',
-	\ 'kind2scope' : {
-		\ 't' : 'ctype',
-		\ 'n' : 'ntype'
-	\ },
-	\ 'scope2kind' : {
-		\ 'ctype' : 't',
-		\ 'ntype' : 'n'
-	\ },
-	\ 'ctagsbin'  : 'gotags',
-	\ 'ctagsargs' : '-sort -silent'
-\ }
+    \ 'ctagstype': 'go',
+    \ 'kinds' : [
+        \'p:package',
+        \'f:function',
+        \'v:variables',
+        \'t:type',
+        \'c:const'
+    \]
+\}
 
 " *********************************** ultisnips *******************************
 let g:UltiSnipsExpandTrigger="<tab>"
@@ -609,3 +611,14 @@ nmap <silent> <Leader>c= :Tab /\/\/<cr>
 imap <C-j> <Plug>(copilot-next)
 imap <C-k> <Plug>(copilot-previous)
 
+"" *********************************** vim-delve *******************************
+nnoremap <silent> <leader>db :DlvToggleBreakpoint<CR>
+nnoremap <silent> <leader>dr :DlvToggleTracepoint<CR>
+nnoremap <silent> <leader>dd :DlvDebug<CR>
+nnoremap <silent> <leader>dt :DlvTest<CR>
+nnoremap <silent> <leader>dc :DlvClearAll<CR>
+
+" ================================= avante ==================================
+lua << EOF
+require('avante').setup()
+EOF

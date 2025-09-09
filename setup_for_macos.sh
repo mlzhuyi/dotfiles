@@ -1,4 +1,3 @@
-# brew
 which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 # You can set HOMEBREW_NO_AUTO_UPDATE=1 to speed up `brew install`
 
@@ -23,6 +22,7 @@ which ag || brew install ag
 which gvm || $(zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/13b10b604255360a9a559c2ea23ba42e75cb536e/binscripts/gvm-installer)) && source $GVM_ROOT/scripts/gvm
 which go || gvm use 1.17.11 --default
 which dot || brew install graphviz
+which dlv || brew install delve
 
 # rust
 which rustc || curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
@@ -33,7 +33,7 @@ which gotty || brew install yudai/gotty/gotty
 ln -sf `pwd`/gotty ~/.gotty
 
 # ctags
-brew install ctags-exuberant
+brew install universal-ctags
 
 # thefuck
 brew install thefuck

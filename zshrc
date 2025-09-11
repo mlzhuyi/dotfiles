@@ -118,7 +118,6 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
 
-eval "$(/usr/local/bin/brew shellenv)"
 # eval $(thefuck --alias)
 
 [[ -s "/Users/mlzhuyi/.gvm/scripts/gvm" ]] && source "/Users/mlzhuyi/.gvm/scripts/gvm"

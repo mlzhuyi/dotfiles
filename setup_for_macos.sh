@@ -19,8 +19,9 @@ echo "Successfully deploy zsh config"
 which ag || brew install ag
 
 # go
-which gvm || $(zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/13b10b604255360a9a559c2ea23ba42e75cb536e/binscripts/gvm-installer)) && source $GVM_ROOT/scripts/gvm
-which go || gvm use 1.17.11 --default
+
+which gvm ||brew install mercurial &&  $(zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/13b10b604255360a9a559c2ea23ba42e75cb536e/binscripts/gvm-installer)) && source $GVM_ROOT/scripts/gvm
+which go || gvm install go1.20.0 && gvm use go1.20.0 --default
 which dot || brew install graphviz
 which dlv || brew install delve
 

@@ -619,6 +619,7 @@ nnoremap <silent> <leader>dt :DlvTest<CR>
 nnoremap <silent> <leader>dc :DlvClearAll<CR>
 
 " ================================= avante ==================================
+autocmd! User avante.nvim
 lua << EOF
 require('avante').setup()
 EOF

@@ -108,18 +108,13 @@ alias blt='bazel test --action_env="PROJECT_ROOT=$PWD" -c opt --test_output=erro
 alias blr='bazel run -c opt'
 alias blball='blb //... && gazebo -l . && go build'
 
-[ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+# Load external tools
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
-
-[ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
 
-[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
+[[ -f zshrc.local ]] && source zshrc.local
 
-# eval $(thefuck --alias)
-
-[[ -s "/Users/mlzhuyi/.gvm/scripts/gvm" ]] && source "/Users/mlzhuyi/.gvm/scripts/gvm"
-
-[ -s "/Users/mlzhuyi/.scm_breeze/scm_breeze.sh" ] && source "/Users/mlzhuyi/.scm_breeze/scm_breeze.sh"
+[ -s "/$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"

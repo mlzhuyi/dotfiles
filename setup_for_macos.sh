@@ -9,7 +9,6 @@ ln -sf `pwd`/self.zsh-theme ~/.oh-my-zsh/themes/self.zsh-theme
 ln -sf `pwd`/zshrc ~/.zshrc
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/scmbreeze/scm_breeze.git ~/.scm_breeze && ~/.scm_breeze/install.sh
 brew install autojump &> /dev/null
 echo "Successfully deploy zsh config"
 # if you run `omz udpate` failed with error `unable to connect to github.com`, you can run following command
@@ -24,6 +23,7 @@ which gvm ||brew install mercurial &&  $(zsh < <(curl -s -S -L https://raw.githu
 which go || gvm install go1.20.0 && gvm use go1.20.0 --default
 which dot || brew install graphviz
 which dlv || brew install delve
+which golangci-lint || brew install golangci-lint
 
 # rust
 which rustc || curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
@@ -52,6 +52,10 @@ vim +"CocInstall coc-lists coc-go coc-diagnostic coc-highlight coc-rust-analyzer
 npm -g install instant-markdown-d
 echo "Successfully deploy neovim config"
 ln -sf `pwd`/UltiSnips ~/.vim/UltiSnips
+
+# scm_breeze - exists conflict command cd with gvm
+# gvm may have problem with scm_breeze with, so install scm_breeze later than gvm
+git clone https://github.com/scmbreeze/scm_breeze.git ~/.scm_breeze && ~/.scm_breeze/install.sh
 
 # fonts
 cp `pwd`/"Monaco Nerd Font Mono.otf" ~/Library/Fonts/

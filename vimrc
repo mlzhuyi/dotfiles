@@ -620,6 +620,4 @@ nnoremap <silent> <leader>dc :DlvClearAll<CR>
 
 " ================================= avante ==================================
 autocmd! User avante.nvim
-lua << EOF
-require('avante').setup()
-EOF
+lua require('avante_config')

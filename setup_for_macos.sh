@@ -6,6 +6,7 @@ if [ ! -d "${HOME}/.oh-my-zsh" ];then
  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 fi
 ln -sf `pwd`/self.zsh-theme ~/.oh-my-zsh/themes/self.zsh-theme
+[[ -f `pwd`/zshrc.local ]] && ln -sf `pwd`/zshrc.local ~/.zshrc.local
 ln -sf `pwd`/zshrc ~/.zshrc
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
@@ -52,6 +53,8 @@ vim +"CocInstall coc-lists coc-go coc-diagnostic coc-highlight coc-rust-analyzer
 npm -g install instant-markdown-d
 echo "Successfully deploy neovim config"
 ln -sf `pwd`/UltiSnips ~/.vim/UltiSnips
+mkdir ~/.config/nvim/lua
+ln -sf `pwd`/avante_config.lua ~/.config/nvim/lua/avante_config.lua
 
 # scm_breeze - exists conflict command cd with gvm
 # gvm may have problem with scm_breeze with, so install scm_breeze later than gvm
@@ -82,3 +85,7 @@ which gsed || brew install gnu-sed
 
 echo "Finished all config tasks"
 exec /bin/zsh
+
+# claude-code
+npm install -g @anthropic-ai/claude-code
+ln -sf `pwd`/CLAUDE.md ~/CLAUDE.md

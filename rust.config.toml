@@ -1,5 +1,5 @@
 [source.crates-io]
-replace-with = 'aliyun'
+replace-with = 'rsproxy-sparse'
 
 # 稀疏索引，要求 cargo >= 1.68
 [source.rsproxy-sparse]

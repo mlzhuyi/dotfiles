@@ -281,6 +281,7 @@ function RToc()
 endfunction
 
 " markdown-preview
+" let g:mkdp_auto_start = 1
 map <Leader>m :MarkdownPreviewToggle<CR>
 let g:mkdp_markdown_css=''
 

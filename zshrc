@@ -66,11 +66,17 @@ plugins=(git autojump zsh-autosuggestions zsh-syntax-highlighting gem bundler ru
 # export PATH="/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 # export MANPATH="/usr/local/man:$MANPATH"
 
+# Prioritize Homebrew binaries over system binaries
+export PATH="/opt/homebrew/bin:$PATH"
+
 source $ZSH/oh-my-zsh.sh
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
+
+# p4 config
+export P4CONFIG=.p4config
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -101,6 +107,8 @@ export VISUAL=nvim
 export EDITOR="$VISUAL"
 export GIT_EDITOR="$VISUAL"
 alias gup=gplr
+
+alias cc=claude
 
 # bazel related
 alias blb='bazel build -c opt'

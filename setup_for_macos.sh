@@ -35,7 +35,7 @@ which gotty || brew install yudai/gotty/gotty
 ln -sf `pwd`/gotty ~/.gotty
 
 # ctags
-brew install universal-ctags
+brew install ctags
 
 # thefuck
 brew install thefuck
@@ -89,3 +89,6 @@ exec /bin/zsh
 # claude-code
 npm install -g @anthropic-ai/claude-code
 ln -sf `pwd`/CLAUDE.md ~/CLAUDE.md
+
+# codex
+npm i -g @openai/codex

@@ -30,5 +30,7 @@ tmux_conf_theme_left_separator_sub='\uE0B1'
 tmux_conf_theme_right_separator_main='\uE0B2'
 tmux_conf_theme_right_separator_sub='\uE0B3'
 
+bind-key r source-file ~/.tmux.conf \; display-message "Config reloaded!"
+
 # share ttyd in current session with a new window (with auth: ttyd/1234)
-bind-key g new-window 'ttyd -W -c ttyd:1234 tmux attach -t "$(tmux display-message -p \#S)"'
+bind-key g new-window -d '(sleep 1 && open "http://localhost:7681/?fontSize=14&fontWeightBold=300&lineHeight=1.0") & ttyd -W -c ttyd:1234 tmux attach -t "$(tmux display-message -p \#S)"'

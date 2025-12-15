@@ -1,5 +1,8 @@
 # Claude Code Global Configuration
 
+## 文档生成规则
+- 生成文档时，日期年份必须使用系统提供的 `Today's date` 中的年份，不要使用训练数据中的旧年份
+
 ## Shell Environment
 - User shell: zsh (not bash)
 - **CRITICAL**: The Bash tool has issues with scm_breeze aliases in the current session. When using commands that may trigger aliases (especially `ls`), you MUST use one of these approaches:

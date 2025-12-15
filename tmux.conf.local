@@ -29,3 +29,6 @@ tmux_conf_theme_left_separator_main='\uE0B0'
 tmux_conf_theme_left_separator_sub='\uE0B1'
 tmux_conf_theme_right_separator_main='\uE0B2'
 tmux_conf_theme_right_separator_sub='\uE0B3'
+
+# share ttyd in current session with a new window (with auth: ttyd/1234)
+bind-key g new-window 'ttyd -W -c ttyd:1234 tmux attach -t "$(tmux display-message -p \#S)"'

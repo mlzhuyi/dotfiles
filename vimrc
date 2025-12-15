@@ -181,6 +181,9 @@ nnoremap <leader>Q :q!<CR>
 " Quickly save the current file
 nnoremap <leader>w :w<CR>
 
+" Reload current file (discard changes)
+nnoremap <leader>e :e!<CR>
+
 " Qickly copy path of current file
 nmap ,ps :let @*=expand("%")<CR>
 nmap ,pl :let @*=expand("%:p")<CR>

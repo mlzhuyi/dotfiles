@@ -19,7 +19,6 @@ echo "Successfully deploy zsh config"
 which ag || brew install ag
 
 # go
-
 which gvm ||brew install mercurial &&  $(zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/13b10b604255360a9a559c2ea23ba42e75cb536e/binscripts/gvm-installer)) && source $GVM_ROOT/scripts/gvm
 which go || gvm install go1.20.0 && gvm use go1.20.0 --default
 which dot || brew install graphviz
@@ -30,15 +29,11 @@ which golangci-lint || brew install golangci-lint
 which rustc || curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 ln -sf `pwd`/rust.config.toml ~/.cargo/config.toml
 
-# gotty
-which gotty || brew install yudai/gotty/gotty
-ln -sf `pwd`/gotty ~/.gotty
+# ttyd
+brew install ttyd
 
 # ctags
 brew install ctags
-
-# thefuck
-brew install thefuck
 
 # neovim
 which nvim || (brew install neovim && pip3 install neovim)
@@ -86,9 +81,17 @@ which gsed || brew install gnu-sed
 echo "Finished all config tasks"
 exec /bin/zsh
 
+# ccusage
+npm install -g ccusage
+
 # claude-code
 npm install -g @anthropic-ai/claude-code
 ln -sf `pwd`/CLAUDE.md ~/CLAUDE.md
+ln -s `pwd`/claude/settings.json ~/.claude/settings.json
 
-# codex
-npm i -g @openai/codex
+claude mcp add -s user chrome-devtools npx chrome-devtools-mcp@latest
+claude mcp add -s user context7 -- npx -y @upstash/context7-mcp
+claude plugin install https://github.com/eyaltoledano/claude-task-master
+
+# gemini
+npm install -g @google/gemini-cli

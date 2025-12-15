@@ -108,7 +108,11 @@ export EDITOR="$VISUAL"
 export GIT_EDITOR="$VISUAL"
 alias gup=gplr
 
+# disable claude code ab test
+export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
 alias cc=claude
+alias ccd="claude --dangerously-skip-permissions"
+
 
 # bazel related
 alias blb='bazel build -c opt'
@@ -126,3 +130,11 @@ export PATH="$PATH:$HOME/.rvm/bin"
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 [ -s "/$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+export PATH="/opt/homebrew/lib/ruby/gems/3.4.0/bin:$PATH"
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/mt/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions

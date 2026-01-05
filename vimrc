@@ -17,7 +17,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'rking/ag.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'majutsushi/tagbar'
-Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins', 'commit': '4dd95bb77f1c8b2a58b62b13a21d49060695d3b9' }
+Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'kristijanhusak/defx-icons'
 Plug 'kristijanhusak/defx-git'
 Plug 'ryanoasis/vim-devicons'
@@ -319,7 +319,27 @@ let g:go_gopls_enabled = 0
 
 " *********************************** defx *******************************
 nmap <silent> <Leader>t :Defx <cr>
-nmap <silent> <C-\> :Defx -resume -search=`expand('%:p')` `getcwd()` <cr>
+function! DefxSmartLocate()
+  let l:filepath = expand('%:p')
+  let l:root = getcwd()
+  let l:relpath = substitute(l:filepath, '^' . escape(l:root, '/\') . '/', '', '')
+  let l:parts = split(l:relpath, '/')
+
+  " 打开 defx 到项目根目录
+  execute 'Defx ' . l:root
+
+  " 逐级展开目录树
+  let l:current = l:root
+  for l:part in l:parts[:-2]
+    let l:current = l:current . '/' . l:part
+    call defx#call_action('search', l:current)
+    call defx#call_action('open_tree')
+  endfor
+
+  " 最终定位到文件
+  call defx#call_action('search', l:filepath)
+endfunction
+nmap <silent> <C-\> :call DefxSmartLocate()<cr>
 nnoremap <silent><buffer><expr> \     defx#do_action('toggle_ignored_files')     " 显示隐藏文件
 call defx#custom#option('_', {
       \ 'winwidth': 25,

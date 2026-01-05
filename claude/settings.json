@@ -1,14 +1,15 @@
 {
+  "model": "opus",
   "statusLine": {
     "type": "command",
-    "command": "npx ccusage statusline --cost-source both --visual-burn-rate emoji-text",
+    "command": "ccusage statusline --cost-source both --visual-burn-rate emoji-text",
     "padding": 0
   },
   "enabledPlugins": {
-    "taskmaster@taskmaster": true,
     "image-generator@mf-marketplace": true,
-    "lark-docx@lark-openapi-mcp": true
-  },
-  "alwaysThinkingEnabled": false,
-  "model": "opus"
+    "lark-docx@lark-openapi-mcp": true,
+    "claude-mem@thedotmack": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "rdep-backend-standards@rdep-toolkit": true
+  }
 }

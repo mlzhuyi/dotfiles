@@ -86,12 +86,17 @@ npm install -g ccusage
 
 # claude-code
 npm install -g @anthropic-ai/claude-code
-ln -sf `pwd`/CLAUDE.md ~/CLAUDE.md
-ln -s `pwd`/claude/settings.json ~/.claude/settings.json
+ln -sf `pwd`/claude/CLAUDE.md ~/CLAUDE.md
+ln -sf `pwd`/claude/settings.json ~/.claude/settings.json
+
+# claude-mem
+mkdir -p ~/.claude-mem
+ln -sf `pwd`/claude/claude-mem/settings.json ~/.claude-mem/settings.json
 
 claude mcp add -s user chrome-devtools npx chrome-devtools-mcp@latest
 claude mcp add -s user context7 -- npx -y @upstash/context7-mcp
-claude plugin install https://github.com/eyaltoledano/claude-task-master
+claude mcp add -s user playwright npx @playwright/mcp@latest
+claude mcp add -s user taskmaster-ai -- npx -y task-master-ai
 
 # gemini
 npm install -g @google/gemini-cli

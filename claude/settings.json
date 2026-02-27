@@ -1,15 +1,16 @@
 {
-  "model": "opus",
   "statusLine": {
     "type": "command",
-    "command": "ccusage statusline --cost-source both --visual-burn-rate emoji-text",
-    "padding": 0
+    "command": "zsh /Users/mt/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "image-generator@mf-marketplace": true,
-    "lark-docx@lark-openapi-mcp": true,
-    "claude-mem@thedotmack": true,
     "gopls-lsp@claude-plugins-official": true,
-    "rdep-backend-standards@rdep-toolkit": true
+    "rdep-backend-standards@rdep-toolkit": true,
+    "lark-docx@mf-marketplace": true,
+    "claude-mem@thedotmack": true,
+    "rdep-devops-standards@rdep-toolkit": true,
+    "agent-browser@agent-browser": true,
+    "context7-plugin@context7-marketplace": true,
+    "superpowers@claude-plugins-official": true
   }
 }

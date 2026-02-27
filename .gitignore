@@ -1,3 +1,7 @@
 .DS_Store
 tags
 zshrc.local
+
+# Claude-mem auto-generated files (keep root CLAUDE.md only)
+**/CLAUDE.md
+!/CLAUDE.md

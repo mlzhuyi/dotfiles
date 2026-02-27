@@ -85,18 +85,39 @@ exec /bin/zsh
 npm install -g ccusage
 
 # claude-code
-npm install -g @anthropic-ai/claude-code
-ln -sf `pwd`/claude/CLAUDE.md ~/CLAUDE.md
+brew install --cask claude-code
+ln -sf `pwd`/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -sf `pwd`/claude/settings.json ~/.claude/settings.json
+ln -sf `pwd`/claude/statusline-command.sh ~/.claude/statusline-command.sh
 
 # claude-mem
 mkdir -p ~/.claude-mem
 ln -sf `pwd`/claude/claude-mem/settings.json ~/.claude-mem/settings.json
 
-claude mcp add -s user chrome-devtools npx chrome-devtools-mcp@latest
-claude mcp add -s user context7 -- npx -y @upstash/context7-mcp
-claude mcp add -s user playwright npx @playwright/mcp@latest
-claude mcp add -s user taskmaster-ai -- npx -y task-master-ai
+# agent-browser
+npm install -g agent-browser
+agent-browser install  # Download Chromium
+claude plugin marketplace add https://github.com/vercel-labs/agent-browser
+claude plugin install agent-browser
+
+# context 7
+claude plugin marketplace add https://github.com/upstash/context7
+claude plugin install context7-plugin
+
+# superpowers
+claude plugin marketplace add obra/superpowers-marketplace
+claude plugin install superpowers@superpowers-marketplace
+
+# claude-hub
+claude plugin marketplace add jarrodwatts/claude-hud
+claude plugin install claude-hud
+claude claude-hud:setup
+
+# task-master
+npm install -g task-master-ai
+claude mcp add task-master-ai --scope user \
+  --env TASK_MASTER_TOOLS="core" \
+  -- npx -y task-master-ai@latest
 
 # gemini
 npm install -g @google/gemini-cli

@@ -71,6 +71,8 @@ which npm || brew install npm
 npm install -g commitizen
 npm install -g lint-staged husky
 ln -sf `pwd`/czrc ~/.czrc
+mkdir -p ~/.config/git
+ln -sf `pwd`/config/git/ignore ~/.config/git/ignore
 brew install tig
 echo "Successfully install related tools for git"
 echo "You can edit your package.json to enable lint-staged or other commit linter"

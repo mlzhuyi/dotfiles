@@ -102,6 +102,7 @@ export P4CONFIG=.p4config
 alias chrome="\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --allow-file-access-from-files"
 alias be="bundle exec"
 alias vim="ge nvim"
+alias v="vim"
 alias gcz="git add . && git cz"
 export VISUAL=nvim
 export EDITOR="$VISUAL"
@@ -147,3 +148,5 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 . "$HOME/.local/bin/env"
+
+alias claude-mem='bun "~/.claude/plugins/cache/thedotmack/claude-mem/10.5.2/scripts/worker-service.cjs"'

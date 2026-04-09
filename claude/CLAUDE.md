@@ -12,9 +12,6 @@
 ### Web 搜索和页面抓取
 - WebSearch 和 WebFetch 无法使用，所有类似场景改用 `agent-browser` skill
 
-### lark-docx (飞书文档)
-- 每个会话遇到权限错误时，先调用 `mcp__plugin_lark-docx_lark-mcp-dev__reload_credentials`
-
 ## Diagram Format
 - **架构图**: 用 PlantUML（系统架构、组件关系、部署拓扑）
 - **流程图/时序图**: 用 Mermaid（业务流程、数据流、状态图、ER图）

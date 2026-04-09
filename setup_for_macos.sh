@@ -123,3 +123,6 @@ claude mcp add task-master-ai --scope user \
 
 # gemini
 npm install -g @google/gemini-cli
+
+# codex
+npm install -g @openai/codex

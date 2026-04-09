@@ -56,7 +56,7 @@ export GOSUMDB=sum.golang.google.cn
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git autojump zsh-autosuggestions zsh-syntax-highlighting gem bundler ruby rake)
+plugins=(git autojump extract zsh-autosuggestions zsh-syntax-highlighting gem bundler ruby rake)
 
 #autojump_conf
 [[ -s ~/.autojump/etc/profile.d/autojump.sh ]] && . ~/.autojump/etc/profile.d/autojump.sh
@@ -113,6 +113,14 @@ alias gup=gplr
 alias cc=claude
 alias ccd="claude --dangerously-skip-permissions"
 
+# yazi
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
 
 # bazel related
 alias blb='bazel build -c opt'

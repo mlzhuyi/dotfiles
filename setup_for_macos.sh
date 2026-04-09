@@ -126,3 +126,11 @@ npm install -g @google/gemini-cli
 
 # codex
 npm install -g @openai/codex
+
+# yazi
+brew install yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font
+brew link ffmpeg-full imagemagick-full -f --overwrite
+brew install yazi --HEAD
+mkdir -p ~/.config/yazi
+ln -sf `pwd`/config/yazi/yazi.toml ~/.config/yazi/yazi.toml
+

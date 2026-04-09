@@ -109,8 +109,7 @@ export EDITOR="$VISUAL"
 export GIT_EDITOR="$VISUAL"
 alias gup=gplr
 
-# disable claude code ab test
-export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
+# claude
 alias cc=claude
 alias ccd="claude --dangerously-skip-permissions"
 

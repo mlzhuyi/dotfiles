@@ -100,6 +100,9 @@ export P4CONFIG=.p4config
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias chrome="\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --allow-file-access-from-files"
+# chrome-auto: 浏览器自动化专用 Chrome 实例（独立 user-data-dir，CDP 端口 9222，不污染日常 Chrome）
+# 用法: agent-browser connect 9222  /  Playwright connectOverCDP('http://localhost:9222')
+alias chrome-auto="\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --remote-debugging-port=9222 --user-data-dir=$HOME/.chrome-automation --allow-file-access-from-files --no-first-run --no-default-browser-check"
 alias be="bundle exec"
 alias vim="ge nvim"
 alias v="vim"
@@ -110,8 +113,8 @@ export GIT_EDITOR="$VISUAL"
 alias gup=gplr
 
 # claude
-alias cc=claude
-alias ccd="claude --dangerously-skip-permissions"
+cc() { claude --append-system-prompt-file ~/Documents/program/dotfiles/claude/zh-prompt.txt "$@"; }
+alias ccd="cc --dangerously-skip-permissions"
 
 # yazi
 function y() {
@@ -137,7 +140,10 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
-[ -s "/$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+# 仅交互式 shell 加载 scm_breeze：非交互（如 Claude Code 快照）下加载会因
+# exec_scmb_expand_args 进快照、_safe_eval 没进，导致每条命令报 _safe_eval not found
+[[ -o interactive ]] && [ -s "/$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+
 export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 export PATH="/opt/homebrew/lib/ruby/gems/3.4.0/bin:$PATH"
@@ -155,5 +161,3 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 . "$HOME/.local/bin/env"
-
-alias claude-mem='bun "~/.claude/plugins/cache/thedotmack/claude-mem/10.5.2/scripts/worker-service.cjs"'

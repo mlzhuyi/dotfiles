@@ -8,6 +8,7 @@ fi
 ln -sf `pwd`/self.zsh-theme ~/.oh-my-zsh/themes/self.zsh-theme
 [[ -f `pwd`/zshrc.local ]] && ln -sf `pwd`/zshrc.local ~/.zshrc.local
 ln -sf `pwd`/zshrc ~/.zshrc
+ln -sf `pwd`/zshenv ~/.zshenv
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 brew install autojump &> /dev/null
@@ -115,6 +116,9 @@ claude plugin marketplace add jarrodwatts/claude-hud
 claude plugin install claude-hud
 claude claude-hud:setup
 
+# larksuit cli
+npx @larksuite/cli@latest install
+
 # task-master
 npm install -g task-master-ai
 claude mcp add task-master-ai --scope user \
@@ -134,3 +138,5 @@ brew install yazi --HEAD
 mkdir -p ~/.config/yazi
 ln -sf `pwd`/config/yazi/yazi.toml ~/.config/yazi/yazi.toml
 
+# tokei
+brew install tokei

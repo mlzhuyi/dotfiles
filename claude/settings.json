@@ -1,7 +1,26 @@
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1"
+  },
+  "permissions": {
+    "deny": [
+      "WebFetch",
+      "WebSearch",
+      "Monitor",
+      "ScheduleWakeup",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "EnterWorktree",
+      "ExitWorktree",
+      "EnterPlanMode",
+      "ExitPlanMode",
+      "NotebookEdit",
+      "PushNotification",
+      "TaskStop",
+      "TeamCreate",
+      "TeamDelete"
+    ]
   },
   "statusLine": {
     "type": "command",
@@ -10,10 +29,13 @@
   "enabledPlugins": {
     "gopls-lsp@claude-plugins-official": true,
     "rdep-backend-standards@rdep-toolkit": true,
-    "claude-mem@thedotmack": true,
+    "claude-mem@thedotmack": false,
     "rdep-devops-standards@rdep-toolkit": true,
     "agent-browser@agent-browser": true,
     "context7-plugin@context7-marketplace": true,
-    "superpowers@claude-plugins-official": true
-  }
+    "rdep-frontend-standards@rdep-toolkit": true,
+    "superpowers@superpowers-marketplace": true,
+    "frontend-design@claude-plugins-official": true
+  },
+  "effortLevel": "medium"
 }

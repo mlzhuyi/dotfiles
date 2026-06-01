@@ -1,7 +1,9 @@
-# Claude-mem auto-generated files (keep root CLAUDE.md only)
-**/CLAUDE.md
-!/CLAUDE.md
-
 # Claude Code local settings
 **/.claude/settings.local.json
 **/.superpowers
+# Qoder local files (private, not committed)
+AGENTS.local.md
+*.local.md
+
+# mac OS layout
+.DS_Store

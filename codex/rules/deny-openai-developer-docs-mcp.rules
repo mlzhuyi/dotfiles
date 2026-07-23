@@ -1,0 +1,21 @@
+# openaiDeveloperDocs is intentionally disabled in config.toml. The bundled
+# openai-docs skill can otherwise re-add it and drop `enabled = false`.
+prefix_rule(
+    pattern = ["codex", "mcp", "add", "openaiDeveloperDocs"],
+    decision = "forbidden",
+    justification = "openaiDeveloperDocs is intentionally disabled; use the Codex manual helper or official web fallback instead",
+)
+
+# Cover the installed binary path and the exact login-shell form used by the
+# bundled skill's exec call.
+prefix_rule(
+    pattern = ["/opt/homebrew/bin/codex", "mcp", "add", "openaiDeveloperDocs"],
+    decision = "forbidden",
+    justification = "openaiDeveloperDocs is intentionally disabled",
+)
+
+prefix_rule(
+    pattern = ["/bin/zsh", "-lc", "codex mcp add openaiDeveloperDocs --url https://developers.openai.com/mcp"],
+    decision = "forbidden",
+    justification = "openaiDeveloperDocs is intentionally disabled",
+)

@@ -113,8 +113,12 @@ export GIT_EDITOR="$VISUAL"
 alias gup=gplr
 
 # claude
-cc() { claude --append-system-prompt-file ~/Documents/program/dotfiles/claude/zh-prompt.txt "$@"; }
+cc() { claude --append-system-prompt-file "$HOME/.claude/zh-prompt.txt" "$@"; }
 alias ccd="cc --dangerously-skip-permissions"
+
+# codex
+alias cx="codex -a never --sandbox workspace-write"
+alias cxd="codex --dangerously-bypass-approvals-and-sandbox"
 
 # yazi
 function y() {
@@ -142,22 +146,25 @@ export PATH="$PATH:$HOME/.rvm/bin"
 
 # 仅交互式 shell 加载 scm_breeze：非交互（如 Claude Code 快照）下加载会因
 # exec_scmb_expand_args 进快照、_safe_eval 没进，导致每条命令报 _safe_eval not found
-[[ -o interactive ]] && [ -s "/$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+[[ -o interactive ]] && [ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
 
 export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 export PATH="/opt/homebrew/lib/ruby/gems/3.4.0/bin:$PATH"
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/mt/.docker/completions $fpath)
+fpath=("$HOME/.docker/completions" $fpath)
 autoload -Uz compinit
 compinit
 # End of Docker CLI completions
 
 # bun completions
-[ -s "/Users/mt/.bun/_bun" ] && source "/Users/mt/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 . "$HOME/.local/bin/env"
+
+# Wodouyao 桌面 App 网页入口（带 token 打开）
+alias wdyweb='open "http://127.0.0.1:20002/#token=$(cat ~/.wodouyao/web-token)"'

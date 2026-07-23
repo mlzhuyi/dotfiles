@@ -10,9 +10,10 @@
 
 ### Web 搜索和页面抓取
 - WebSearch 和 WebFetch 无法使用，所有类似场景改用 `agent-browser` skill
+- 普通查资料/搜内容/抓页面：直接用 `agent-browser open <url>` 等命令，默认无头（headless）后台运行，不弹前台窗口，**不要**启动 `chrome-auto`
 
 ## 浏览器自动化
-- 需要驱动真实 Chrome 时由 Claude 自己启动：`zsh -ic 'pgrep -f remote-debugging-port=9222 >/dev/null || (chrome-auto &) ; sleep 1.5'`
+- 仅当确实需要真实 Chrome 环境（需要已登录的 cookie/session，或前端自动化测试要看真实渲染效果）时，才由 Claude 自己启动：`zsh -ic 'pgrep -f remote-debugging-port=9222 >/dev/null || (chrome-auto &) ; sleep 1.5'`
 - `chrome-auto` alias 已在 `~/.zshrc`，独立 user-data-dir `~/.chrome-automation`，CDP 端口 9222，不污染日常 Chrome
 - 用 `agent-browser connect 9222` 或 Playwright `connectOverCDP` 接管
 
@@ -29,8 +30,9 @@ terminals on the canvas:
 
 - `wodouyao peers` — list wired peer terminal ids
 - `wodouyao spawn --name N --command C` — create a new terminal (auto-wired)
-- `wodouyao send <peer> "<text>" Enter` — drive input on a peer
-- `wodouyao read <peer>` — fetch a peer's recent output
+- `wodouyao send <peer> "<text>"` — leave a message in a peer inbox
+- `wodouyao inbox` / `wodouyao read <msg>` — receive and read messages
+- `wodouyao tail <peer>` — fetch a peer's recent output
 - `wodouyao whoami` / `wodouyao hello --name N --kind K` — identity
 
 Wires on the canvas act as an ACL — only directly connected peers are

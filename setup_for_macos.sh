@@ -25,6 +25,7 @@ which go || gvm install go1.20.0 && gvm use go1.20.0 --default
 which dot || brew install graphviz
 which dlv || brew install delve
 which golangci-lint || brew install golangci-lint
+which gopls || brew install gopls  # LSP for gopls-lsp plugin in Claude Code
 
 # rust
 which rustc || curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
@@ -81,9 +82,6 @@ echo "You can edit your package.json to enable lint-staged or other commit linte
 # gsed
 which gsed || brew install gnu-sed
 
-echo "Finished all config tasks"
-exec /bin/zsh
-
 # ccusage
 npm install -g ccusage
 
@@ -92,44 +90,44 @@ brew install --cask claude-code
 ln -sf `pwd`/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -sf `pwd`/claude/settings.json ~/.claude/settings.json
 ln -sf `pwd`/claude/statusline-command.sh ~/.claude/statusline-command.sh
-
-# claude-mem
-mkdir -p ~/.claude-mem
-ln -sf `pwd`/claude/claude-mem/settings.json ~/.claude-mem/settings.json
-
-# agent-browser
-npm install -g agent-browser
-agent-browser install  # Download Chromium
-claude plugin marketplace add https://github.com/vercel-labs/agent-browser
-claude plugin install agent-browser
-
-# context 7
-claude plugin marketplace add https://github.com/upstash/context7
-claude plugin install context7-plugin
-
-# superpowers
-claude plugin marketplace add obra/superpowers-marketplace
-claude plugin install superpowers@superpowers-marketplace
-
-# claude-hub
-claude plugin marketplace add jarrodwatts/claude-hud
-claude plugin install claude-hud
-claude claude-hud:setup
-
-# larksuit cli
-npx @larksuite/cli@latest install
-
-# task-master
-npm install -g task-master-ai
-claude mcp add task-master-ai --scope user \
-  --env TASK_MASTER_TOOLS="core" \
-  -- npx -y task-master-ai@latest
+ln -sf "$(pwd)/claude/zh-prompt.txt" "$HOME/.claude/zh-prompt.txt"
 
 # gemini
 npm install -g @google/gemini-cli
 
 # codex
 npm install -g @openai/codex
+mkdir -p ~/.codex
+[[ -f `pwd`/codex/config.toml ]] || cp `pwd`/codex/config.toml.example `pwd`/codex/config.toml
+ln -sf `pwd`/codex/config.toml ~/.codex/config.toml
+ln -sf `pwd`/codex/AGENTS.md ~/.codex/AGENTS.md
+mkdir -p ~/.codex/rules
+ln -sf `pwd`/codex/rules/deny-openai-developer-docs-mcp.rules ~/.codex/rules/deny-openai-developer-docs-mcp.rules
+
+# agent-browser
+npm install -g agent-browser
+agent-browser install  # Download Chromium
+claude plugin marketplace add https://github.com/vercel-labs/agent-browser
+claude plugin install agent-browser
+npx --yes skills@latest add vercel-labs/agent-browser --global --agent codex --skill agent-browser --yes
+
+# context 7
+claude plugin marketplace add https://github.com/upstash/context7
+claude plugin install context7-plugin
+codex plugin marketplace add upstash/context7
+codex plugin add context7@context7-marketplace
+
+# superpowers
+claude plugin marketplace add obra/superpowers-marketplace
+claude plugin install superpowers@superpowers-marketplace
+codex plugin add superpowers@openai-curated
+
+# larksuit cli
+npx @larksuite/cli@latest install
+
+
+# agent skills
+npx --yes skills@latest add alchaincyf/huashu-design --global --agent claude-code codex --skill huashu-design --yes
 
 # yazi
 brew install yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font
@@ -140,3 +138,6 @@ ln -sf `pwd`/config/yazi/yazi.toml ~/.config/yazi/yazi.toml
 
 # tokei
 brew install tokei
+
+echo "Finished all config tasks"
+exec /bin/zsh

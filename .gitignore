@@ -1,6 +1,7 @@
 .DS_Store
 tags
 zshrc.local
+codex/config.toml
 
 # Claude-mem auto-generated files (keep root CLAUDE.md only)
 **/CLAUDE.md

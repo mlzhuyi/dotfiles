@@ -1,0 +1,91 @@
+model = "gpt-5.5"
+model_provider = "litellm"
+model_reasoning_effort = "medium"
+personality = "pragmatic"
+service_tier = "fast"
+
+[model_providers.openai-chat-completions]
+name = "OpenAI using Chat Completions"
+base_url = "https://your-llm-gateway.example.com" # 换成你自己的网关地址
+env_key = "ANTHROPIC_AUTH_TOKEN" # 存放 api key 的环境变量名字，不是直接填 key
+wire_api = "responses"
+
+[model_providers.litellm]
+name = "LiteLLM Provider"
+base_url = "https://your-llm-gateway.example.com" # 换成你自己的网关地址
+env_key  = "ANTHROPIC_AUTH_TOKEN"
+wire_api = "responses"
+
+[tui]
+status_line = ["model-with-reasoning", "context-remaining", "current-dir", "git-branch", "fast-mode"]
+
+[features]
+hooks = true
+skill_mcp_dependency_install = false
+
+# Keep only lark-doc, lark-shared, lark-sheets, and lark-wiki enabled.
+[[skills.config]]
+name = "lark-base"
+enabled = false
+
+[[skills.config]]
+name = "lark-calendar"
+enabled = false
+
+[[skills.config]]
+name = "lark-contact"
+enabled = false
+
+[[skills.config]]
+name = "lark-drive"
+enabled = false
+
+[[skills.config]]
+name = "lark-event"
+enabled = false
+
+[[skills.config]]
+name = "lark-im"
+enabled = false
+
+[[skills.config]]
+name = "lark-mail"
+enabled = false
+
+[[skills.config]]
+name = "lark-minutes"
+enabled = false
+
+[[skills.config]]
+name = "lark-openapi-explorer"
+enabled = false
+
+[[skills.config]]
+name = "lark-skill-maker"
+enabled = false
+
+[[skills.config]]
+name = "lark-task"
+enabled = false
+
+[[skills.config]]
+name = "lark-vc"
+enabled = false
+
+[[skills.config]]
+name = "lark-whiteboard"
+enabled = false
+
+[[skills.config]]
+name = "lark-workflow-meeting-summary"
+enabled = false
+
+[[skills.config]]
+name = "lark-workflow-standup-report"
+enabled = false
+
+# Intentionally disabled. The bundled openai-docs skill otherwise tries to
+# install this MCP dependency when its tools are unavailable.
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+enabled = false

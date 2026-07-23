@@ -314,7 +314,7 @@ let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-j>"
 let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 let g:UltiSnipsEditSplit="vertical"
-let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/UltiSnips', 'UltiSnips']
+let g:UltiSnipsSnippetDirectories=['UltiSnips']
 let g:go_gopls_enabled = 0
 
 " *********************************** defx *******************************

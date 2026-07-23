@@ -49,7 +49,6 @@ vim +PlugInstall +q +q
 vim +"CocInstall coc-lists coc-go coc-diagnostic coc-highlight coc-rust-analyzer" +q
 npm -g install instant-markdown-d
 echo "Successfully deploy neovim config"
-ln -sf `pwd`/UltiSnips ~/.vim/UltiSnips
 mkdir ~/.config/nvim/lua
 ln -sf `pwd`/avante_config.lua ~/.config/nvim/lua/avante_config.lua
 

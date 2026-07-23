@@ -2,6 +2,7 @@
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 filetype off
+let g:python3_host_prog = expand('~/.local/share/nvim/python3/bin/python')
 
 call plug#begin('~/.nvim/plugged')
 
@@ -49,10 +50,8 @@ Plug 'MeanderingProgrammer/render-markdown.nvim'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'nvim-tree/nvim-web-devicons' "or Plug 'echasnovski/mini.icons'
 Plug 'HakonHarnes/img-clip.nvim'
-Plug 'zbirenbaum/copilot.lua'
 Plug 'stevearc/dressing.nvim' " for enhanced input UI
 Plug 'folke/snacks.nvim' " for modern input UI
-Plug 'github/copilot.vim'
 
 " Yay, pass source=true if you want to build from source
 Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': 'make' }
@@ -630,10 +629,6 @@ nnoremap <silent> <F3> :call codelf#start()<CR>
 "" *********************************** tabular *******************************
 nmap <silent> <Leader>c= :Tab /\/\/<cr>
 
-
-"" *********************************** copilot *******************************
-imap <C-j> <Plug>(copilot-next)
-imap <C-k> <Plug>(copilot-previous)
 
 "" *********************************** vim-delve *******************************
 nnoremap <silent> <leader>db :DlvToggleBreakpoint<CR>

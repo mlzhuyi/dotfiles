@@ -1,142 +1,361 @@
-which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-# You can set HOMEBREW_NO_AUTO_UPDATE=1 to speed up `brew install`
+#!/usr/bin/env zsh
+set -eu
+setopt pipefail
 
-# oh-my-zsh
-if [ ! -d "${HOME}/.oh-my-zsh" ];then
- sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+repo_dir="${0:A:h}"
+dry_run=0
+
+usage() {
+  print "Usage: ./setup.sh [--dry-run]"
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --dry-run) dry_run=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) print -u2 "Unknown option: $1"; usage >&2; exit 2 ;;
+  esac
+  shift
+done
+
+section() {
+  print
+  print "==> $1"
+}
+
+run() {
+  print -r -- "+ ${(q)@}"
+  (( dry_run )) || "$@"
+}
+
+retry() {
+  local max_attempts="$1"
+  shift
+  local attempt=1
+
+  until run "$@"; do
+    if (( attempt >= max_attempts )); then
+      return 1
+    fi
+    print -u2 "Retrying ($(( attempt + 1 ))/$max_attempts): $*"
+    sleep $(( attempt * 2 ))
+    attempt=$(( attempt + 1 ))
+  done
+}
+
+ensure_dir() {
+  [[ -d "$1" ]] || run mkdir -p "$1"
+}
+
+link_file() {
+  local source_path="$1"
+  local target_path="$2"
+  local target_dir="${target_path:h}"
+
+  ensure_dir "$target_dir"
+
+  if [[ -L "$target_path" ]] && [[ "$(readlink "$target_path")" == "$source_path" ]]; then
+    print "ok: $target_path"
+    return
+  fi
+
+  if [[ -e "$target_path" || -L "$target_path" ]]; then
+    local backup_path="${target_path}.before-dotfiles"
+    if [[ -e "$backup_path" || -L "$backup_path" ]]; then
+      print -u2 "Refusing to replace $target_path; backup already exists: $backup_path"
+      return 1
+    fi
+    run mv "$target_path" "$backup_path"
+  fi
+
+  run ln -s "$source_path" "$target_path"
+}
+
+clone_if_missing() {
+  local repository="$1"
+  local target_path="$2"
+
+  if [[ -d "$target_path/.git" ]]; then
+    print "ok: $target_path"
+  elif [[ -e "$target_path" ]]; then
+    print -u2 "Refusing to clone over existing path: $target_path"
+    return 1
+  else
+    run git clone --depth 1 "$repository" "$target_path"
+  fi
+}
+
+ensure_npm_global() {
+  local command_name="$1"
+  local package_name="$2"
+
+  if (( dry_run )); then
+    run npm install -g "$package_name"
+    return
+  fi
+
+  if npm list -g --depth=0 "$package_name" >/dev/null 2>&1; then
+    print "ok: $command_name"
+  else
+    run npm install -g "$package_name"
+  fi
+}
+
+ensure_claude_marketplace() {
+  local marketplace="$1"
+  local source="$2"
+
+  if (( dry_run )); then
+    run claude plugin marketplace add "$source"
+    return
+  fi
+
+  if claude plugin marketplace list 2>/dev/null | grep -Fq "$marketplace"; then
+    print "ok: Claude marketplace $marketplace"
+  else
+    run claude plugin marketplace add "$source"
+  fi
+}
+
+ensure_claude_plugin() {
+  local plugin="$1"
+
+  if (( dry_run )); then
+    run claude plugin install "$plugin"
+    return
+  fi
+
+  if claude plugin list 2>/dev/null | grep -Fq "$plugin"; then
+    print "ok: Claude plugin $plugin"
+  else
+    run claude plugin install "$plugin"
+  fi
+}
+
+ensure_codex_marketplace() {
+  local marketplace="$1"
+  local source="$2"
+
+  if (( dry_run )); then
+    run codex plugin marketplace add "$source"
+    return
+  fi
+
+  if codex plugin marketplace list 2>/dev/null | grep -Fq "$marketplace"; then
+    print "ok: Codex marketplace $marketplace"
+  else
+    run codex plugin marketplace add "$source"
+  fi
+}
+
+ensure_codex_plugin() {
+  local plugin="$1"
+
+  if (( dry_run )); then
+    run codex plugin add "$plugin"
+    return
+  fi
+
+  if codex plugin list 2>/dev/null | grep -F "$plugin" | grep -Fq "installed,"; then
+    print "ok: Codex plugin $plugin"
+  else
+    run codex plugin add "$plugin"
+  fi
+}
+
+section "Homebrew"
+if ! command -v brew >/dev/null 2>&1; then
+  if (( dry_run )); then
+    print "+ install Homebrew"
+  else
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
 fi
-ln -sf `pwd`/self.zsh-theme ~/.oh-my-zsh/themes/self.zsh-theme
-[[ -f `pwd`/zshrc.local ]] && ln -sf `pwd`/zshrc.local ~/.zshrc.local
-ln -sf `pwd`/zshrc ~/.zshrc
-ln -sf `pwd`/zshenv ~/.zshenv
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-brew install autojump &> /dev/null
-echo "Successfully deploy zsh config"
-# if you run `omz udpate` failed with error `unable to connect to github.com`, you can run following command
-# git config --global url."https://".insteadOf git://
 
-# ag
-which ag || brew install ag
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 
-# go
-which gvm ||brew install mercurial &&  $(zsh < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/13b10b604255360a9a559c2ea23ba42e75cb536e/binscripts/gvm-installer)) && source $GVM_ROOT/scripts/gvm
-which go || gvm install go1.20.0 && gvm use go1.20.0 --default
-which dot || brew install graphviz
-which dlv || brew install delve
-which golangci-lint || brew install golangci-lint
-which gopls || brew install gopls  # LSP for gopls-lsp plugin in Claude Code
+brew_formulae=(
+  autojump
+  the_silver_searcher
+  mercurial
+  go
+  graphviz
+  delve
+  golangci-lint
+  gopls
+  ttyd
+  universal-ctags
+  neovim
+  gotags
+  python
+  node
+  tig
+  gnu-sed
+  yazi
+  ffmpeg-full
+  sevenzip
+  jq
+  poppler
+  fd
+  ripgrep
+  fzf
+  zoxide
+  resvg
+  imagemagick-full
+  tokei
+)
+run brew install "${brew_formulae[@]}"
+run brew install --cask google-chrome claude-code font-symbols-only-nerd-font
+run brew link --force --overwrite ffmpeg-full imagemagick-full
 
-# rust
-which rustc || curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
-ln -sf `pwd`/rust.config.toml ~/.cargo/config.toml
+section "Oh My Zsh"
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  if (( dry_run )); then
+    print "+ install Oh My Zsh"
+  else
+    RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c \
+      "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  fi
+fi
 
-# ttyd
-brew install ttyd
+zsh_custom="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+ensure_dir "$zsh_custom/plugins"
+clone_if_missing https://github.com/zsh-users/zsh-syntax-highlighting.git \
+  "$zsh_custom/plugins/zsh-syntax-highlighting"
+clone_if_missing https://github.com/zsh-users/zsh-autosuggestions.git \
+  "$zsh_custom/plugins/zsh-autosuggestions"
+clone_if_missing https://github.com/scmbreeze/scm_breeze.git "$HOME/.scm_breeze"
 
-# ctags
-brew install ctags
+# Run SCM Breeze's profile/config setup once, before ~/.zshrc becomes managed.
+if [[ ! -f "$HOME/.git.scmbrc" ]]; then
+  run bash "$HOME/.scm_breeze/install.sh"
+fi
 
-# neovim
-which nvim || (brew install neovim && pip3 install neovim)
-which gotags || brew install gotags
-[ -e ~/.config/nvim ] && rm -rf ~/.config/nvim
-mkdir ~/.config/nvim/
-ln -sf `pwd`/vimrc ~/.config/nvim/init.vim
-ln -sf `pwd`/coc-settings.json ~/.config/nvim/coc-settings.json
-curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-vim +PlugInstall +q +q
-vim +"CocInstall coc-lists coc-go coc-diagnostic coc-highlight coc-rust-analyzer" +q
-npm -g install instant-markdown-d
-echo "Successfully deploy neovim config"
-mkdir ~/.config/nvim/lua
-ln -sf `pwd`/avante_config.lua ~/.config/nvim/lua/avante_config.lua
+link_file "$repo_dir/self.zsh-theme" "$HOME/.oh-my-zsh/themes/self.zsh-theme"
+link_file "$repo_dir/zshrc" "$HOME/.zshrc"
+link_file "$repo_dir/zshenv" "$HOME/.zshenv"
+[[ -f "$repo_dir/zshrc.local" ]] && link_file "$repo_dir/zshrc.local" "$HOME/.zshrc.local"
 
-# scm_breeze - exists conflict command cd with gvm
-# gvm may have problem with scm_breeze with, so install scm_breeze later than gvm
-git clone https://github.com/scmbreeze/scm_breeze.git ~/.scm_breeze && ~/.scm_breeze/install.sh
+section "Go and GVM"
+# Homebrew provides a current Go toolchain. GVM remains available for projects
+# that need to switch versions, and registers the Homebrew Go as its system Go.
+if [[ ! -s "$HOME/.gvm/scripts/gvm" ]]; then
+  if (( dry_run )); then
+    print "+ install GVM"
+  else
+    GVM_NO_UPDATE_PROFILE=1 bash < <(
+      curl -fsSL https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer
+    )
+  fi
+fi
 
-# fonts
-cp `pwd`/"Monaco Nerd Font Mono.otf" ~/Library/Fonts/
-# then set font of iterm: settings -> profiles -> text -> font
+section "Rust"
+if ! command -v rustc >/dev/null 2>&1; then
+  if (( dry_run )); then
+    print "+ install rustup"
+  else
+    curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs \
+      | sh -s -- -y --no-modify-path
+  fi
+fi
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+link_file "$repo_dir/rust.config.toml" "$HOME/.cargo/config.toml"
 
+section "Neovim"
+ensure_dir "$HOME/.config/nvim/lua"
+link_file "$repo_dir/vimrc" "$HOME/.config/nvim/init.vim"
+link_file "$repo_dir/coc-settings.json" "$HOME/.config/nvim/coc-settings.json"
+link_file "$repo_dir/avante_config.lua" "$HOME/.config/nvim/lua/avante_config.lua"
 
-# tmux
-which tmux || brew install tmux
-ln -sf `pwd`/tmux.conf ~/.tmux.conf
-ln -sf `pwd`/tmux.conf.local ~/.tmux.conf.local
-echo "Successfully deploy tmux config"
+python_host="$HOME/.local/share/nvim/python3"
+if [[ ! -x "$python_host/bin/python" ]]; then
+  run python3 -m venv "$python_host"
+  run "$python_host/bin/python" -m pip install --upgrade pip pynvim
+fi
 
-# git
-which npm || brew install npm
-npm install -g commitizen
-npm install -g lint-staged husky
-ln -sf `pwd`/czrc ~/.czrc
-mkdir -p ~/.config/git
-ln -sf `pwd`/config/git/ignore ~/.config/git/ignore
-brew install tig
-echo "Successfully install related tools for git"
-echo "You can edit your package.json to enable lint-staged or other commit linter"
+plug_vim="$HOME/.local/share/nvim/site/autoload/plug.vim"
+if [[ ! -f "$plug_vim" ]]; then
+  ensure_dir "${plug_vim:h}"
+  run curl -fLo "$plug_vim" \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+fi
+run nvim --headless "+PlugInstall --sync" +qa
+run nvim --headless \
+  "+CocInstall -sync coc-lists coc-go coc-diagnostic coc-highlight coc-rust-analyzer" +qa
+ensure_npm_global instant-markdown-d instant-markdown-d
 
-# gsed
-which gsed || brew install gnu-sed
+section "Terminal and font"
+link_file "$repo_dir/tmux.conf" "$HOME/.tmux.conf"
+link_file "$repo_dir/tmux.conf.local" "$HOME/.tmux.conf.local"
+ensure_dir "$HOME/Library/Fonts"
+font_source="$repo_dir/Monaco Nerd Font Mono.otf"
+font_target="$HOME/Library/Fonts/Monaco Nerd Font Mono.otf"
+if [[ ! -f "$font_target" ]] || ! cmp -s "$font_source" "$font_target"; then
+  run cp "$font_source" "$font_target"
+else
+  print "ok: $font_target"
+fi
 
-# ccusage
-npm install -g ccusage
+section "Git and global Node tools"
+link_file "$repo_dir/czrc" "$HOME/.czrc"
+link_file "$repo_dir/config/git/ignore" "$HOME/.config/git/ignore"
+ensure_npm_global cz commitizen
+ensure_npm_global lint-staged lint-staged
+ensure_npm_global husky husky
+ensure_npm_global ccusage ccusage
+ensure_npm_global gemini @google/gemini-cli
+ensure_npm_global codex @openai/codex
 
-# claude-code
-brew install --cask claude-code
-ln -sf `pwd`/claude/CLAUDE.md ~/.claude/CLAUDE.md
-ln -sf `pwd`/claude/settings.json ~/.claude/settings.json
-ln -sf `pwd`/claude/statusline-command.sh ~/.claude/statusline-command.sh
-ln -sf "$(pwd)/claude/zh-prompt.txt" "$HOME/.claude/zh-prompt.txt"
+section "Claude and Codex"
+ensure_dir "$HOME/.claude"
+link_file "$repo_dir/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+link_file "$repo_dir/claude/settings.json" "$HOME/.claude/settings.json"
+link_file "$repo_dir/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
+link_file "$repo_dir/claude/zh-prompt.txt" "$HOME/.claude/zh-prompt.txt"
 
-# gemini
-npm install -g @google/gemini-cli
+ensure_dir "$HOME/.codex/rules"
+if [[ ! -f "$repo_dir/codex/config.toml" ]]; then
+  run cp "$repo_dir/codex/config.toml.example" "$repo_dir/codex/config.toml"
+fi
+link_file "$repo_dir/codex/config.toml" "$HOME/.codex/config.toml"
+link_file "$repo_dir/codex/AGENTS.md" "$HOME/.codex/AGENTS.md"
+link_file "$repo_dir/codex/rules/deny-openai-developer-docs-mcp.rules" \
+  "$HOME/.codex/rules/deny-openai-developer-docs-mcp.rules"
 
-# codex
-npm install -g @openai/codex
-mkdir -p ~/.codex
-[[ -f `pwd`/codex/config.toml ]] || cp `pwd`/codex/config.toml.example `pwd`/codex/config.toml
-ln -sf `pwd`/codex/config.toml ~/.codex/config.toml
-ln -sf `pwd`/codex/AGENTS.md ~/.codex/AGENTS.md
-mkdir -p ~/.codex/rules
-ln -sf `pwd`/codex/rules/deny-openai-developer-docs-mcp.rules ~/.codex/rules/deny-openai-developer-docs-mcp.rules
+section "Agent tooling"
+# Install the current CLI explicitly; agent-browser install is safe to rerun
+# and downloads its matching browser only when needed.
+run npm install -g agent-browser@latest
+if ! retry 2 agent-browser install; then
+  print -u2 "Dedicated Chrome download failed; checking the system Chrome fallback."
+fi
+run agent-browser doctor --offline --quick
 
-# agent-browser
-npm install -g agent-browser
-agent-browser install  # Download Chromium
-claude plugin marketplace add https://github.com/vercel-labs/agent-browser
-claude plugin install agent-browser
-npx --yes skills@latest add vercel-labs/agent-browser --global --agent codex --skill agent-browser --yes
+ensure_claude_marketplace agent-browser https://github.com/vercel-labs/agent-browser
+ensure_claude_plugin agent-browser@agent-browser
+ensure_claude_marketplace context7-marketplace https://github.com/upstash/context7
+ensure_claude_plugin context7-plugin@context7-marketplace
+ensure_claude_marketplace superpowers-marketplace obra/superpowers-marketplace
+ensure_claude_plugin superpowers@superpowers-marketplace
 
-# context 7
-claude plugin marketplace add https://github.com/upstash/context7
-claude plugin install context7-plugin
-codex plugin marketplace add upstash/context7
-codex plugin add context7@context7-marketplace
+ensure_codex_marketplace context7-marketplace upstash/context7
+ensure_codex_plugin context7@context7-marketplace
+ensure_codex_plugin superpowers@openai-curated
 
-# superpowers
-claude plugin marketplace add obra/superpowers-marketplace
-claude plugin install superpowers@superpowers-marketplace
-codex plugin add superpowers@openai-curated
+run npx --yes skills@latest add vercel-labs/agent-browser \
+  --global --agent codex --skill agent-browser --yes
+if ! command -v lark-cli >/dev/null 2>&1; then
+  run npx @larksuite/cli@latest install
+fi
+run npx --yes skills@latest add alchaincyf/huashu-design \
+  --global --agent claude-code codex --skill huashu-design --yes
 
-# larksuit cli
-npx @larksuite/cli@latest install
+section "Yazi"
+link_file "$repo_dir/config/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
 
-
-# agent skills
-npx --yes skills@latest add alchaincyf/huashu-design --global --agent claude-code codex --skill huashu-design --yes
-
-# yazi
-brew install yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font
-brew link ffmpeg-full imagemagick-full -f --overwrite
-brew install yazi --HEAD
-mkdir -p ~/.config/yazi
-ln -sf `pwd`/config/yazi/yazi.toml ~/.config/yazi/yazi.toml
-
-# tokei
-brew install tokei
-
-echo "Finished all config tasks"
-exec /bin/zsh
+print
+print "Finished all config tasks. Start a new zsh session to load the changes."

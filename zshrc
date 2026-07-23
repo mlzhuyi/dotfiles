@@ -129,12 +129,6 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-# bazel related
-alias blb='bazel build -c opt'
-alias blt='bazel test --action_env="PROJECT_ROOT=$PWD" -c opt --test_output=errors --keep_going'
-alias blr='bazel run -c opt'
-alias blball='blb //... && gazebo -l . && go build'
-
 # Load external tools
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"

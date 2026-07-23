@@ -4,7 +4,7 @@
 local base_url = os.getenv("ANTHROPIC_BASE_URL") or "https://api.anthropic.com"
 
 require('avante').setup({
-  ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | "copilot" | string
+  ---@alias Provider "claude" | "openai" | "azure" | "gemini" | "cohere" | string
   provider = "openai", -- 推荐使用 claude
   auto_suggestions = false, -- 自动建议
   providers = {

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Browser Session Stability"
+  short_description: "稳定复用浏览器登录态并分流 API/UI 自动化测试"
+  default_prompt: "Use $browser-session-stability to run browser automation with a stable login session and safe API/UI separation."
+
+policy:
+  allow_implicit_invocation: true

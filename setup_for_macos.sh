@@ -318,6 +318,21 @@ link_file "$repo_dir/claude/statusline-command.sh" "$HOME/.claude/statusline-com
 link_file "$repo_dir/claude/zh-prompt.txt" "$HOME/.claude/zh-prompt.txt"
 
 ensure_dir "$HOME/.codex/rules"
+ensure_dir "$HOME/.codex/skills"
+ensure_dir "$HOME/.claude/skills"
+ensure_dir "$HOME/.agents/skills"
+link_file "$repo_dir/agent-skills/browser-session-stability" \
+  "$HOME/.codex/skills/browser-session-stability"
+link_file "$repo_dir/agent-skills/browser-session-stability" \
+  "$HOME/.claude/skills/browser-session-stability"
+link_file "$repo_dir/agent-skills/browser-session-stability" \
+  "$HOME/.agents/skills/browser-session-stability"
+link_file "$repo_dir/agent-skills/feature-acceptance" \
+  "$HOME/.codex/skills/feature-acceptance"
+link_file "$repo_dir/agent-skills/feature-acceptance" \
+  "$HOME/.claude/skills/feature-acceptance"
+link_file "$repo_dir/agent-skills/feature-acceptance" \
+  "$HOME/.agents/skills/feature-acceptance"
 if [[ ! -f "$repo_dir/codex/config.toml" ]]; then
   run cp "$repo_dir/codex/config.toml.example" "$repo_dir/codex/config.toml"
 fi
@@ -334,6 +349,13 @@ if ! retry 2 agent-browser install; then
   print -u2 "Dedicated Chrome download failed; checking the system Chrome fallback."
 fi
 run agent-browser doctor --offline --quick
+# headed: true —— agent-browser 万一自己启动浏览器，必须可见，不能再出现
+# headless + 临时 profile、用户看不见也登录不了的实例。
+# autoConnect: true —— 没写端口的调用落到已在运行的 9222，而不是每次弹一个新窗口
+# （实测：去掉它之后，两个会话在 12 秒内各弹了一个临时 profile 窗口并抢走用户焦点）。
+# 需要独立实例的任务显式绕开：--auto-connect false --cdp <port>。
+link_file "$repo_dir/config/agent-browser/config.json" \
+  "$HOME/.agent-browser/config.json"
 
 ensure_claude_marketplace agent-browser https://github.com/vercel-labs/agent-browser
 ensure_claude_plugin agent-browser@agent-browser

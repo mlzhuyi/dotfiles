@@ -78,6 +78,8 @@ export LC_ALL=en_US.UTF-8
 # p4 config
 export P4CONFIG=.p4config
 
+alias agi="ag --hidden --ignore .git"
+
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
 #   export EDITOR='vim'
@@ -103,6 +105,180 @@ alias chrome="\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" -
 # chrome-auto: 浏览器自动化专用 Chrome 实例（独立 user-data-dir，CDP 端口 9222，不污染日常 Chrome）
 # 用法: agent-browser connect 9222  /  Playwright connectOverCDP('http://localhost:9222')
 alias chrome-auto="\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --remote-debugging-port=9222 --user-data-dir=$HOME/.chrome-automation --allow-file-access-from-files --no-first-run --no-default-browser-check"
+# 每个自动化实例一个 profile 目录。同一目录不能开两个实例，所以并行任务必须用不同端口。
+chrome-auto-profile() {
+  local port="${1:-9222}"
+  if [[ "$port" == "9222" ]]; then
+    print -r -- "$HOME/.chrome-automation"
+  else
+    print -r -- "$HOME/.chrome-automation-$port"
+  fi
+}
+# 该端口上是否已有可用的 CDP 端点（而不是恰好占着端口的路人服务）。
+chrome-cdp-ready() {
+  curl -fsS --max-time 1 "http://127.0.0.1:${1:-9222}/json/version" 2>/dev/null \
+    | grep -q '"webSocketDebuggerUrl"'
+}
+# chrome-auto-start [port]：启动（或复用）一个可见的自动化 Chrome。
+# 默认 9222。并行验收时给每个任务一个端口：chrome-auto-start 9223
+# 新端口的 profile 是全新的，需要在该窗口里登录一次。
+chrome-auto-start() {
+  local port="${1:-9222}"
+  local profile_dir
+  profile_dir="$(chrome-auto-profile "$port")"
+  local log_file="$profile_dir/chrome-auto.log"
+  local chrome_app="/Applications/Google Chrome.app"
+  local i
+
+  # 端口上已有实例就直接复用；同 profile 不能开第二个实例。
+  if chrome-cdp-ready "$port"; then
+    return 0
+  fi
+
+  # 双保险：-j 隐藏启动已经不抢焦点了，这里再记一次当前前台应用并还回去，
+  # 以防将来某版 Chrome 的启动行为变化又开始自我激活。
+  local prev_app
+  prev_app=$(osascript -e 'tell application "System Events" to get name of first process whose frontmost is true' 2>/dev/null)
+
+  mkdir -p "$profile_dir"
+  # 通过 macOS LaunchServices 启动，避免调用 shell 退出时执行器回收整个子进程树；
+  # nohup/disown 只能忽略 SIGHUP，无法绕过父级进程监督器的 descendant cleanup。
+  # -g 不激活应用、-j 隐藏启动。单用 -g 没用：Chrome 启动时会自己 activate，
+  # 把用户正在打字的应用的焦点抢走（实测 open -g 后前台直接变成 Google Chrome）。
+  # 隐藏启动才是真的不打扰；需要用户看时用 chrome-front <port> 唤出。
+  /usr/bin/open -g -j -na "$chrome_app" --args \
+    --remote-debugging-port="$port" \
+    --user-data-dir="$profile_dir" \
+    --allow-file-access-from-files \
+    --no-first-run \
+    --no-default-browser-check \
+    >>"$log_file" 2>&1 || {
+      print -u2 "chrome-auto 启动命令失败，日志见 $log_file"
+      return 1
+    }
+
+  for i in {1..40}; do
+    if chrome-cdp-ready "$port"; then
+      break
+    fi
+    sleep 0.25
+  done
+
+  if ! chrome-cdp-ready "$port"; then
+    print -u2 "chrome-auto 启动失败：CDP $port 未就绪，日志见 $log_file"
+    return 1
+  fi
+
+  # 把焦点还给启动前的应用。窗口仍然可见（在后台），需要看时用 chrome-front $port。
+  if [[ -n "$prev_app" ]]; then
+    osascript -e "tell application \"System Events\" to set frontmost of (first process whose name is \"$prev_app\") to true" 2>/dev/null
+  fi
+  return 0
+}
+# 端口认领：多个任务并行时，靠 mkdir 的原子性分配端口，避免两个任务挤进同一个浏览器。
+# 约定：9222 是用户自己的窗口，agent 的并行任务从 9223 起用。
+chrome-auto-claim() {
+  local task="${1:?用法: chrome-auto-claim <任务名> [起始端口]}"
+  local base="${2:-9223}"
+  local pool_end=$((base + 7))
+  local lock_root="$HOME/.chrome-automation-ports"
+  local d p
+
+  mkdir -p "$lock_root"
+
+  # 同一个任务重复认领：返回它已经占用的端口，避免重复起实例。
+  for d in "$lock_root"/*(N/); do
+    if [[ "$(cat "$d/owner" 2>/dev/null)" == "$task" ]]; then
+      print -r -- "${d:t}"
+      return 0
+    fi
+  done
+
+  for (( p = base; p <= pool_end; p++ )); do
+    if [[ -d "$lock_root/$p" ]]; then
+      # 锁还在但实例已不在（agent 崩了没释放）→ 回收僵尸锁，否则端口池会被耗尽。
+      if chrome-cdp-ready "$p"; then
+        continue
+      fi
+      rm -rf "$lock_root/$p"
+    fi
+    # mkdir 是原子的：并发认领时只有一个任务能创建成功。
+    if mkdir "$lock_root/$p" 2>/dev/null; then
+      print -r -- "$task" > "$lock_root/$p/owner"
+      date +%s > "$lock_root/$p/since"
+      if ! chrome-auto-start "$p"; then
+        rm -rf "$lock_root/$p"
+        print -u2 "端口 $p 起实例失败，已释放"
+        return 1
+      fi
+      print -r -- "$p"
+      return 0
+    fi
+  done
+
+  print -u2 "端口池 $base-$pool_end 已满；先 chrome-auto-release <任务名> 释放，或 chrome-auto-list 查看占用"
+  return 1
+}
+# chrome-auto-release <任务名>：释放认领记录。不关浏览器 —— 窗口留着，下次复用就不用再弹一次。
+chrome-auto-release() {
+  local task="${1:?用法: chrome-auto-release <任务名>}"
+  local lock_root="$HOME/.chrome-automation-ports"
+  local d found=0
+  for d in "$lock_root"/*(N/); do
+    if [[ "$(cat "$d/owner" 2>/dev/null)" == "$task" ]]; then
+      rm -rf "$d"
+      found=1
+      print -r -- "已释放端口 ${d:t}（浏览器窗口保留）"
+    fi
+  done
+  (( found )) || print -u2 "没有找到任务 $task 的认领记录"
+}
+chrome-auto-list() {
+  local lock_root="$HOME/.chrome-automation-ports"
+  local d
+  if [[ ! -d "$lock_root" ]] || [[ -z "$(ls -A "$lock_root" 2>/dev/null)" ]]; then
+    print "当前没有端口被认领"
+    return 0
+  fi
+  print "端口   任务                认领时间"
+  local since ts
+  for d in "$lock_root"/*(N/); do
+    since="$(cat "$d/since" 2>/dev/null)"
+    ts=""
+    [[ -n "$since" ]] && ts="$(date -r "$since" '+%H:%M:%S' 2>/dev/null)"
+    printf "%-6s %-19s %s\n" "${d:t}" "$(cat "$d/owner" 2>/dev/null)" "${ts:--}"
+  done
+}
+# chrome-front [port]：把某个自动化 Chrome 窗口置前。
+# 用途：需要人工观测或手动登录（密码/验证码）时，让用户能看到并操作正确的那个窗口。
+chrome-front() {
+  local port="${1:-9222}"
+  local chrome_pid
+  # 用 lsof 找监听该端口的进程：pgrep -f 在本机匹配不到 Chrome 的长命令行
+  # （实测两种写法都返回空），会退化成"激活任意一个 Chrome"，也就是最该避免的切错窗口。
+  chrome_pid=$(lsof -ti tcp:"$port" -sTCP:LISTEN 2>/dev/null | head -1)
+
+  if [[ -z "$chrome_pid" ]]; then
+    print -u2 "未找到监听 $port 的 Chrome，请先运行 chrome-auto-start $port"
+    return 1
+  fi
+
+  # 按 PID 精确置前，避免多个 Chrome 实例时激活到日常浏览器。
+  # 先 set visible：隐藏启动（open -j）的实例必须显式显示出来才会出现窗口。
+  if ! osascript \
+      -e 'tell application "System Events"' \
+      -e "set visible of (first process whose unix id is $chrome_pid) to true" \
+      -e "set frontmost of (first process whose unix id is $chrome_pid) to true" \
+      -e 'end tell' 2>/dev/null; then
+    # 无辅助功能权限时的回退；可能激活到日常 Chrome，故打印提示。
+    print -u2 "System Events 置前失败（需辅助功能权限），回退到 open -a"
+    /usr/bin/open -a "/Applications/Google Chrome.app" 2>/dev/null || {
+      print -u2 "置前失败，请手动切换到自动化 Chrome 窗口"
+      return 1
+    }
+  fi
+  return 0
+}
 alias be="bundle exec"
 alias vim="ge nvim"
 alias v="vim"
@@ -113,7 +289,7 @@ export GIT_EDITOR="$VISUAL"
 alias gup=gplr
 
 # claude
-cc() { claude --append-system-prompt-file "$HOME/.claude/zh-prompt.txt" "$@"; }
+cc() { claude --append-system-prompt "$(cat "$HOME/.claude/zh-prompt.txt")" "$@"; }
 alias ccd="cc --dangerously-skip-permissions"
 
 # codex

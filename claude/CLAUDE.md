@@ -9,13 +9,21 @@
 ## MCP Tools
 
 ### Web 搜索和页面抓取
-- WebSearch 和 WebFetch 无法使用，所有类似场景改用 `agent-browser` skill
-- 普通查资料/搜内容/抓页面：直接用 `agent-browser open <url>` 等命令，默认无头（headless）后台运行，不弹前台窗口，**不要**启动 `chrome-auto`
+- WebSearch 和 WebFetch 无法使用，所有类似场景统一使用 `$browser-session-stability`（内部调用 `agent-browser`）。
+- 普通查资料/搜内容/抓页面按该 Skill 的无头与会话分流规则执行，不在本节重复维护命令细节。
 
 ## 浏览器自动化
-- 仅当确实需要真实 Chrome 环境（需要已登录的 cookie/session，或前端自动化测试要看真实渲染效果）时，才由 Claude 自己启动：`zsh -ic 'pgrep -f remote-debugging-port=9222 >/dev/null || (chrome-auto &) ; sleep 1.5'`
-- `chrome-auto` alias 已在 `~/.zshrc`，独立 user-data-dir `~/.chrome-automation`，CDP 端口 9222，不污染日常 Chrome
-- 用 `agent-browser connect 9222` 或 Playwright `connectOverCDP` 接管
+- 使用 `$browser-session-stability` 处理 agent-browser 的持久化会话、登录态复用、Token 安全和 API/UI 分流；Codex 与 Claude 共用同一份 Skill。
+- 接口/数据回归优先直接走 API、日志或数据库；只有 DOM、样式、真实渲染或浏览器事件无法替代时才启动浏览器，并只导航到明确目标。
+- 固定复用持久化会话，禁止新建空会话、切换 profile、随机导航或反复要求登录；连接失败先报告并恢复同一会话。
+
+## 交付 / 验收
+- 把工作交回用户之前（写"下一步""你可以做的"也算），以及在验收周期内每轮被质疑后重新举证时，先走 `$feature-acceptance`。
+
+## 飞书文档
+- 涉及 `feishu.cn` / `larksuite.com` 的文档、知识库或云盘对象时，优先使用 `lark-doc`、`lark-shared` 和 `lark-cli`；不要因为需要登录或已有 Cookie 就改走浏览器。
+- Wiki 链接必须先通过 `wiki spaces get_node` 解析 `obj_type` 与真实 `obj_token`，不得直接把 `/wiki/` 路径 token 当作文档 token。
+- 文档写入前确认用户意图；长文按章节分段写入，写入后必须用 `docs +fetch` 回读并核对标题、关键内容及图片/文件标签顺序。失败时保留现状并从原文档续写，不要静默重复创建。
 
 ## Diagram Format
 - **架构图**: 用 PlantUML（系统架构、组件关系、部署拓扑）

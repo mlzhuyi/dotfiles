@@ -15,15 +15,27 @@ Use this skill with `agent-browser` whenever a task needs authenticated requests
 
 ## Stable session lifecycle
 
-1. Pick one session name for the task and pass it on **every** command: `agent-browser --session <name> <command>`. Do not use the `connect` subcommand (measured on 0.33.0: `connect 9222` prints `✓ Done` but the next command still drives a freshly launched browser on a random high port). A command with no `--session` runs on a session literally named `default` — which is also where other, unconfigured agents on this machine land. Derive the name once with `agent-browser session id --scope worktree --prefix <task>`.
-2. On this machine the lifecycle mode is fixed: **attach to the visible automation Chrome on CDP 9222**, and let the config do it. `~/.agent-browser/config.json` sets `autoConnect: true` and `headed: true`. Do not use `--restore` to give a session a browser of its own — that instance gets a throwaway profile and no login state, so the user can neither watch it nor sign into it, and because it is a *new* browser it also pops a window and steals the user's focus. For the normal case do **not** pass `--cdp`: auto-connect outranks it and the CLI errors with "Cannot use --auto-connect and --cdp together". To deliberately drive a different instance, turn auto-connect off for that command instead: `--auto-connect false --cdp <port>`. Do not mix modes or create a second ad-hoc session after a failure.
-3. For a visible Chrome with an existing login, use: `zsh -ic 'chrome-auto-start'` to make sure the instance is up; verify `http://127.0.0.1:9222/json/version`; then `agent-browser --session <name> ...`; list tabs; then act on an existing tab. Do not navigate until the target is explicit. Keep that same session name for the rest of the task — never drop back to a bare command, and never introduce a session name that was not the one you started with. If you ever do see `[agent-browser] launched browser`, you are driving a browser of your own instead of the user's — a configuration fault to fix, not a normal step.
-4. Do not confuse CDP attachment with launching a new browser. If the port you need cannot be reached, inspect port/startup state and report it; do not silently fall back to a blank browser or another profile.
-5. After navigation or any page-changing action, wait and snapshot again; earlier refs are stale.
+1. Pass **both** the session name and the port on **every** command: `agent-browser --session <name> --cdp 9222 <command>`. Measured on 0.33.0, the session remembers **neither** on its own:
+
+   - Drop `--cdp` and the next command silently drives a **private instance** instead — your first command talks to the shared signed-in browser, your second to a blank one. There is no warning.
+   - `connect <port>` does not stick either: it answers `✓ Done`, yet the next command still launches a fresh browser on a random port. It does print `[agent-browser] relaunched browser` on the way, which is easy to miss in the surrounding output.
+   - Drop `--session` and you land on a session literally named `default`, which is also where other unconfigured agents on this machine land.
+
+   Derive the name once with `agent-browser session id --scope worktree --prefix <task>`.
+2. `~/.agent-browser/config.json` sets exactly one thing that matters here: `headed: true`. There is **no `autoConnect`**. So the port you name decides everything, and there are two outcomes:
+
+   - **Name `--cdp 9222`** → you drive the long-lived shared instance (persistent profile, the one the user keeps signed in).
+   - **Name no port** → agent-browser launches a **private instance for your session**: visible, a throwaway profile, **logged out**.
+
+   Both are headed and on screen. Pick deliberately — see *Which instance to use* below.
+3. A session name is effectively **a browser**, not just a label: the first command on a new session name launches a window and takes the user's focus. So pick **one stable session name per task** (`agent-browser session id --scope worktree --prefix <task>`) and pass it on every command. Minting a new name mid-task gains nothing and costs the user another window. A command with no `--session` runs on a session literally named `default`.
+4. Do not use `--restore`. It gives the session a throwaway-profile browser of its own — which is what naming no port already does — plus state files on disk that the token rules below forbid.
+5. Do not confuse attaching to a port with launching a browser. If the port you need is unreachable, inspect port/startup state and report it; do not silently fall back to a blank browser or another profile.
+6. After navigation or any page-changing action, wait and snapshot again; earlier refs are stale.
 
 ### Which browser am I actually driving?
 
-Session contexts are fully isolated (separate cookies, localStorage, tabs), and which browser a session drives is decided by the port it resolves — auto-connect's 9222 by default, or whatever a `--auto-connect false --cdp <port>` names. So one command that drops the `--session` flag silently drives a different, almost certainly logged-out browser. "The user sees a logged-in page while I see a login form" is this failure — not a lost session, not a backend restart, not expired cookies.
+Session contexts are fully isolated (separate cookies, localStorage, tabs), and the browser a session drives is decided by the port you name: `--cdp 9222` for the shared instance, or nothing at all for a private one of your own. So one command that drops the `--session` flag silently drives a different browser, and one that drops the port silently moves you from the user's signed-in instance to a blank private one. "The user sees a logged-in page while I see a login form" is this failure — not a lost session, not a backend restart, not expired cookies.
 
 Before blaming the app, the cookies, or a service restart, run these read-only checks and compare against what the user says they see:
 
@@ -36,34 +48,44 @@ agent-browser --session <name> tab list     # which tabs does the session think 
 curl -s 127.0.0.1:9222/json/list            # which targets does the real browser expose?
 ```
 
-- `cdp-url` points somewhere other than the port you meant → you are on the wrong instance. Re-run with the correct `--session`, naming the port with `--auto-connect false --cdp <port>` if it is not 9222. Do not log in again.
-- `cdp-url` is a random high port (not `9222`) → agent-browser launched a browser for itself: headless, throwaway profile, no login state, invisible to the user. Nothing observed there describes what the user sees. Re-attach to 9222 and check the config file before investigating the app at all.
+- `cdp-url` points somewhere other than the port you meant → you are on the wrong instance. Re-run with the correct `--session` and `--cdp <port>`. Do not log in again.
+- `cdp-url` is a random high port (not `9222`) → this session is on its own private instance: visible, throwaway profile, **logged out**. That is correct and intended for a task that needs no login. If you expected the user's session, you simply forgot `--cdp 9222` — fix that instead of investigating the app.
 - The session's active tab is missing from `/json/list` → a **dead target**. `eval` and `snapshot` against it keep returning the old DOM, which is how a closed login page goes on "proving" the app signed the user out. Re-list tabs, switch to a target that exists in `/json/list`, then re-check.
 - Two sessions both attached to the same port but on different pages → different tabs; list tabs and use the one the user is looking at.
 - Only when `cdp-url` **and** the URL are both right may you treat a login page as a genuine auth loss.
 
 ### Concurrent tasks: one browser per task, one port per browser
 
-Two tasks that share a port share **one browser and one set of tabs**. A new session does not get a private page: it opens its own `about:blank` in the user's window, and its "current tab" follows what is active in that browser. Measured: three fresh sessions all reported the identical tab set, `t1` was the user's own page in all three, and all three ended up current on the same `about:blank` — so a `click` in one session lands wherever another session last navigated, with no error.
+Two tasks that share a port share **one browser and one set of tabs**. A new session does not get a private page: it opens its own `about:blank` in that shared window, and its "current tab" follows what is active in that browser. Measured: three fresh sessions all reported the identical tab set, `t1` was the same shared page in all three, and all three ended up current on the same `about:blank` — so a `click` in one session lands wherever another session last navigated, with no error.
 
 Measured in the same run: concurrent activity navigated the user's **own** tab away from the page they were reading. Sharing a browser does not merely inconvenience the other task, it edits what the user is looking at.
 
-- Default to **one task at a time** on 9222.
-- Need real parallelism? **Claim a port, don't pick one.** `port=$(zsh -ic "chrome-auto-claim <task>")` returns a free port from the pool (9223+), starts its visible window, and records the claim. Then put `--auto-connect false --cdp <port>` on every command of that task (the `--auto-connect false` is required — auto-connect outranks `--cdp` and would otherwise pull the task back to 9222). Each port gets its own profile directory (`~/.chrome-automation-<port>`), its own window, and its own tabs. A fresh profile starts logged out — the user signs in there once, exactly as they did for 9222.
-- **Claiming is idempotent per task name, so use one stable name for the whole task.** Call it as often as you like with the same name and you get the same port and the same browser; a *different* name claims a *second* port and pops a second window. Use the task's stable session id as that name (`agent-browser session id --scope worktree --prefix <task>`) so a restarted or resumed agent rejoins its own port instead of claiming a new one. Never mint a fresh name just to get a "clean" browser — that is how the user ends up with windows multiplying.
-- `zsh -ic 'chrome-auto-release <task>'` frees a claim; the window deliberately stays so the next run reuses it. The pool is finite (8 ports) and a full pool is an error, so release tasks that are finished. `zsh -ic 'chrome-auto-list'` shows who holds what.
-- If a task genuinely must share one browser, give it its own tab (`tab new --label <task>`), put `tab <label>` on every command, and close it when done. That prevents cross-talk between pages, but not focus stealing.
-- Never leave tabs behind: close what you opened (`tab close <label>`), so the user's window does not fill up with your `about:blank`s.
+The simplest isolation is free: **a task that names no port already has its own browser.** Concurrency is only a problem for tasks that must share 9222's login state.
+
+- **One task per browser.** Either give each concurrent task its own session name and let it take a private instance, or serialize the tasks that need 9222.
+- Need several **signed-in** instances at once? `zsh -ic 'chrome-auto-claim <task>'` hands out a port from a pool, each with its own **persistent** profile (`~/.chrome-automation-<port>`) so each can hold its own login. It is idempotent per task name — reuse one stable name and you get the same port and browser; a *different* name claims a *second* port and pops a *second* window, so never mint a fresh name per run. `zsh -ic 'chrome-auto-release <task>'` frees it; `chrome-auto-list` shows holders. A fresh profile starts logged out — the user signs in there once, as they did for 9222.
+- If a task genuinely must share one browser, give it its own labelled tab (`tab new --label <task>`), put `tab <label>` on every command, and close it when done. That prevents cross-talk between pages — but not the focus steal that creating the tab costs (see below), and not the pile-up if you forget to close it.
 
 ### Do not steal the user's focus
 
-Starting a browser or activating a tab brings Chrome to the front and cuts off whatever the user is typing in another app. `open -g` alone does not prevent it — Chrome activates itself on launch (measured: frontmost became `Google Chrome`). `chrome-auto-start` therefore launches **hidden** (`open -g -j`), and the frontmost app never changes (measured: frontmost stayed `iTerm2` across a full launch). Re-activating the previously frontmost app afterwards is kept only as a belt-and-braces fallback. "It switches away and switches back" is *not* an acceptable outcome — the keystrokes in between still land in Chrome or break the user's IME composition.
+Measured on this machine — the complete list of actions that cost the user their focus:
 
-The cost is deliberate: a newly started instance has **no window on screen** until you bring it forward. That is what lets you start a browser mid-task without interrupting the user.
+| action | steals focus? |
+|---|---|
+| the **first command on a new session name** (it launches a window) | **yes** |
+| `open` / `snapshot` / `get` / `eval` / `console` on a session whose window already exists | no |
+| `tab new` | **yes** |
+| switching tabs (`tab <tN>`) | **yes** |
+| `tab close` / `tab list` | no |
 
-- To show it — or to hand it to the user to sign in — call `zsh -ic 'chrome-front <port>'`, which sets that process visible and frontmost. Use it only when the user actually needs to look at or type into the window; that is the login handoff below, not a "so you can see it" step.
-- Prefer reusing an already-running instance over starting a new one.
-- A command that names **no** port does not pop anything: `autoConnect` sends it to the already-running 9222. Dropping `autoConnect` was tried on 2026-09-29 and made every such call launch a fresh headed temp-profile window — measured: two unrelated sessions each popped one within 12 seconds, each stealing the user's focus mid-typing. That is why the config keeps `autoConnect: true` and parallel tasks opt out explicitly instead.
+Creating a tab activates its window — that is the whole mechanism behind both "the focus jumped out of my terminal" and "there is a stray `about:blank`". One action, two symptoms. Nothing brings the focus back: these are agent-browser's own actions with no focus-restoring wrapper around them (unlike `chrome-auto-start`, which restores the previously frontmost app after launching), so focus stays on Chrome until the user clicks back — mid-sentence, if they were typing.
+
+That leaves exactly two costs for you to control:
+
+- **Launch cost — pay it once per task.** Use one session name for the whole task, so a window is created once instead of once per command. Keep instances long-lived; don't start and stop one per task.
+- **Tab cost — avoid it entirely.** Stay in one tab: navigate with `open`, or in a SPA with `eval "location.hash='#/path'"` (measured: walking four routes that way never took focus). Reaching a different page is **not** a reason to switch tabs. If the task genuinely needs two pages visible at once, `tab new` once and close the extra the moment you are done — never leave `about:blank`s behind.
+- `zsh -ic 'chrome-front 9222'` fronts the process listening on that port — for when the user actually needs to look at or type into a window (the login handoff below), never as a "so you can see it" step. That handoff is the one place stealing focus is intended.
+- Prefer reusing an instance that is already up over starting another.
 
 ### Do not narrate a cause you have not verified
 
@@ -72,21 +94,24 @@ A symptom seen twice is not a rule. "Login drops every time the backend restarts
 - Report observation and location only: session name, `cdp-url`, URL, tab. Name a cause only after a check has ruled out the alternatives above.
 - When the user says "I'm looking right at it and it's logged in", that is strong evidence about reality. Re-check your own context first instead of arguing — and do not spend a turn agreeing with them before you have checked.
 
-### The automation browser is the one you must reuse
+### Which instance to use
 
-On this setup, the Chrome on port `9222` is the automation instance: a dedicated profile with its own `--user-data-dir`, kept separate from the user's everyday Chrome. The user maintains it deliberately and signs into sites there for automation, so treat its login state as real and reusable. Keep the two windows distinct in your reporting.
+Two kinds exist on this machine. Both are headed and on screen — **neither is headless**:
 
-Never accept an automation instance the user cannot see. If a session is driving anything else — a random-port browser, a throwaway temp profile, a different `--user-data-dir` — say so and fix the attach before doing more work. Evidence collected in a browser the user cannot open is not evidence about what they will see, and a login form in that browser is an artifact of your own instance, never of their session.
+- **The shared instance, on `9222`** (`~/.chrome-automation`, a persistent profile kept separate from the user's everyday Chrome). The user keeps it signed in for automation, so treat its login state as real and reusable. Reach it with `--cdp 9222`. It is *shared*: concurrent sessions collide in it and pile up `about:blank`s, so run one task at a time there.
+- **A private instance** — what you get by naming no port. A throwaway profile, **logged out**, gone with the session. Right for a task that needs no auth; wrong for anything that does. It costs one window and one focus steal per session name.
+
+Never fall back to a **headless** browser of your own. The user must be able to watch what you do, and to sign in when a credential step needs them — evidence collected in a browser they cannot open is not evidence about what they will see.
 
 This is a local convention, not a general law. On a machine where CDP attaches to the user's ordinary Chrome instead, do not carry the assumption over — when it matters, check the `--user-data-dir` the CDP target is actually running with rather than assuming either way.
 
 A login form in *this* browser is therefore **your** problem first, not the environment's:
 
-- The first and usually correct explanation is that you are driving the wrong instance — a drifted session, a bare command, or a browser that a new session name launched. Run the identity checks above before anything else.
+- The first and usually correct explanation is that you are on the wrong instance: a private, logged-out browser where you meant `--cdp 9222`, a drifted session, or a bare command. Run the identity checks above before anything else.
 - Never explain the login form away with "the user is probably signed in on their other Chrome", "the profile got reset", or "the session expired". You cannot see their other browser or their history, and inventing a cause you cannot observe is the same failure as "login drops every time the backend restarts".
 - Only after `cdp-url` and `url` both check out may you report a missing session — report the observation and ask, never a theory, then continue into the login/consent classification below like any other unauthenticated page.
 
-`chrome-auto-start` and `chrome-front` are shell functions from the user's `zshrc`, not `agent-browser` subcommands. They load only in a shell that has sourced `~/.zshrc`, so call them as `zsh -ic 'chrome-auto-start'` / `zsh -ic 'chrome-front'` — do not conclude they are missing just because a bare non-interactive shell cannot see them. `chrome-auto-start [port]` defaults to 9222 and restores the previously frontmost app afterwards. Do not substitute a headless browser of your own.
+`zsh -ic 'chrome-auto-start [port]'` (defaults to 9222) brings the shared instance up if it is down. `chrome-auto-start` and `chrome-front` are shell functions from the user's `zshrc`, not `agent-browser` subcommands — call them through `zsh -ic '...'`; a bare non-interactive shell cannot see them, which does not mean they are missing.
 
 ## Authentication and tokens
 

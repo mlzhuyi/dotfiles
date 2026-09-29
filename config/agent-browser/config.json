@@ -1,5 +1,4 @@
 {
   "idleTimeout": "10m",
-  "headed": true,
-  "autoConnect": true
+  "headed": true
 }

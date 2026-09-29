@@ -143,10 +143,10 @@ chrome-auto-start() {
   mkdir -p "$profile_dir"
   # 通过 macOS LaunchServices 启动，避免调用 shell 退出时执行器回收整个子进程树；
   # nohup/disown 只能忽略 SIGHUP，无法绕过父级进程监督器的 descendant cleanup。
-  # -g 不激活应用、-j 隐藏启动。单用 -g 没用：Chrome 启动时会自己 activate，
-  # 把用户正在打字的应用的焦点抢走（实测 open -g 后前台直接变成 Google Chrome）。
-  # 隐藏启动才是真的不打扰；需要用户看时用 chrome-front <port> 唤出。
-  /usr/bin/open -g -j -na "$chrome_app" --args \
+  # 启动即可见，与 agent-browser 自建实例的行为保持一致（用户要求"能看见"优先）。
+  # Chrome 被拉起时会自己 activate，抢走用户正在打字的应用的焦点——这一点消除不了
+  # （实测 open -g 压不住），所以启动完成后会把焦点还原回去，作为补救。
+  /usr/bin/open -g -na "$chrome_app" --args \
     --remote-debugging-port="$port" \
     --user-data-dir="$profile_dir" \
     --allow-file-access-from-files \

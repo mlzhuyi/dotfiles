@@ -1,174 +1,179 @@
 ---
 name: browser-session-stability
-description: "Run reliable browser automation by preserving login sessions, reusing auth safely, and separating API requests from UI actions. Use whenever browser automation, authenticated testing, login/consent/authorization pages, or repeated login failures are involved."
+description: "通过持久化登录会话、安全复用 auth、分离 API 请求与 UI 操作，可靠地执行浏览器自动化。凡是涉及浏览器自动化、需要登录态的测试、登录 / consent / 授权页面，或反复登录失败（browser automation, authenticated testing, login/consent/authorization pages, repeated login failures）的场景都应使用。"
 ---
 
-# Browser Session Stability
+# 浏览器会话稳定性
 
-Use this skill with `agent-browser` whenever a task needs authenticated requests, real rendering, or browser interaction. Keep one predictable session and avoid making the user log in repeatedly. The rules apply to any website, not only a particular project.
+只要任务需要已认证请求、真实渲染或浏览器交互，就配合 `agent-browser` 使用本 skill。保持一个可预测的 session，不要让用户反复登录。这些规则适用于任何网站，不只是某个特定项目。
 
-## Decide whether a browser is needed
+## 决定是否需要浏览器
 
-- For API/data verification, use direct API, logs, or database access first. Do not open a page just to submit data or obtain a token.
-- Use a browser only for DOM/style/real-rendering/interaction evidence, or when an authenticated same-origin request must reuse browser state.
-- If a visible page is required, state the exact target and navigate only to that target.
+- 做 API / 数据校验时，先用直接的 API、日志或数据库访问。不要为了提交数据或拿一个 token 就打开页面。
+- 只在需要 DOM / 样式 / 真实渲染 / 交互证据，或必须复用浏览器状态发同源请求时，才使用浏览器。
+- 如果确实需要可见页面，写明确切目标，并且只导航到那一个目标。
 
-## Stable session lifecycle
+## 稳定的 session 生命周期
 
-1. Pass **both** the session name and the port on **every** command: `agent-browser --session <name> --cdp 9222 <command>`. Measured on 0.33.0, the session remembers **neither** on its own:
+1. **每一条**命令都要同时带上 session 名和端口：`agent-browser --session <name> --cdp 9222 <command>`。在 0.33.0 上实测，session 自己**两者都不记**：
 
-   - Drop `--cdp` and the next command silently drives a **private instance** instead — your first command talks to the shared signed-in browser, your second to a blank one. There is no warning.
-   - `connect <port>` does not stick either: it answers `✓ Done`, yet the next command still launches a fresh browser on a random port. It does print `[agent-browser] relaunched browser` on the way, which is easy to miss in the surrounding output.
-   - Drop `--session` and you land on a session literally named `default`, which is also where other unconfigured agents on this machine land.
+   - 漏掉 `--cdp`，下一条命令会静默驱动一个 **private instance**——你的第一条命令还在跟共享的已登录浏览器对话，第二条就在跟一个空白浏览器对话。没有任何警告。
+   - `connect <port>` 也不生效：它回 `✓ Done`，但下一条命令照样在随机端口起一个新浏览器。它确实会打印 `[agent-browser] relaunched browser`，只是混在周围输出里很容易漏看。
+   - 漏掉 `--session`，你会落到一个字面名为 `default` 的 session 上，而这台机器上其他没配置的 agent 也落在那里。
 
-   Derive the name once with `agent-browser session id --scope worktree --prefix <task>`.
-2. `~/.agent-browser/config.json` sets exactly one thing that matters here: `headed: true`. There is **no `autoConnect`**. So the port you name decides everything, and there are two outcomes:
+   用 `agent-browser session id --scope worktree --prefix <task>` 把名字推导一次。
 
-   - **Name `--cdp 9222`** → you drive the long-lived shared instance (persistent profile, the one the user keeps signed in).
-   - **Name no port** → agent-browser launches a **private instance for your session**: visible, a throwaway profile, **logged out**.
+2. `~/.agent-browser/config.json` 在这里只设置一件要紧的事：`headed: true`。**没有 `autoConnect`**。所以你指定的端口决定一切，结果只有两种：
 
-   Both are headed and on screen. Pick deliberately — see *Which instance to use* below.
-3. A session name is effectively **a browser**, not just a label: the first command on a new session name launches a window and takes the user's focus. So pick **one stable session name per task** (`agent-browser session id --scope worktree --prefix <task>`) and pass it on every command. Minting a new name mid-task gains nothing and costs the user another window. A command with no `--session` runs on a session literally named `default`.
-4. Do not use `--restore`. It gives the session a throwaway-profile browser of its own — which is what naming no port already does — plus state files on disk that the token rules below forbid.
-5. Do not confuse attaching to a port with launching a browser. If the port you need is unreachable, inspect port/startup state and report it; do not silently fall back to a blank browser or another profile.
-6. After navigation or any page-changing action, wait and snapshot again; earlier refs are stale.
+   - **写 `--cdp 9222`** → 你驱动的是长期存活的 shared instance（持久化 profile，用户保持登录的那个）。
+   - **不写端口** → agent-browser 为你的 session 起一个 **private instance**：可见、一次性 profile、**未登录**。
 
-### Which browser am I actually driving?
+   两者都是 headed、都在屏幕上。要有意识地选——见下面的 *该用哪个 instance*。
 
-Session contexts are fully isolated (separate cookies, localStorage, tabs), and the browser a session drives is decided by the port you name: `--cdp 9222` for the shared instance, or nothing at all for a private one of your own. So one command that drops the `--session` flag silently drives a different browser, and one that drops the port silently moves you from the user's signed-in instance to a blank private one. "The user sees a logged-in page while I see a login form" is this failure — not a lost session, not a backend restart, not expired cookies.
+3. session 名实际上**就是一个浏览器**，不只是个标签：新 session 名上的第一条命令会拉起一个窗口并抢走用户的 focus。所以每个任务**只固定用一个 session 名**（`agent-browser session id --scope worktree --prefix <task>`），每条命令都带上它。任务中途新造名字毫无收益，只会再花掉用户一个窗口。不带 `--session` 的命令会跑在一个字面名为 `default` 的 session 上。
 
-Before blaming the app, the cookies, or a service restart, run these read-only checks and compare against what the user says they see:
+4. 不要用 `--restore`。它给 session 一个自己的 throwaway-profile 浏览器——而那正是不指定端口时已经发生的事——外加磁盘上的状态文件，而下面的 token 规则禁止这类文件。
+
+5. 不要把「连到一个端口」和「启动一个浏览器」搞混。如果需要的端口不可达，检查端口 / 启动状态并报告；不要静默退回到一个空白浏览器或另一个 profile。
+
+6. 导航或任何会改变页面的操作之后，等待并重新 snapshot；之前的 refs 已经失效。
+
+### 我实际驱动的是哪个浏览器？
+
+各 session 上下文完全隔离（独立的 cookies、localStorage、标签页），而一个 session 驱动哪个浏览器，由你指定的端口决定：`--cdp 9222` 是 shared instance，什么都不写就是你自己私有的一个。所以漏掉 `--session` 的那条命令会静默驱动另一个浏览器，漏掉端口的那条会把你从用户的已登录 instance 悄悄挪到一个空白的 private instance。「用户看到的是已登录页面，而我看到的是登录表单」就是这个失败——不是 session 丢了，不是后端重启，也不是 cookie 过期。
+
+在把锅甩给应用、cookie 或服务重启之前，跑这些只读检查，并与用户说他看到的东西对照：
 
 ```bash
-agent-browser session                       # which session am I on?
-agent-browser session list                  # how many exist, which one is current?
-agent-browser --session <name> get cdp-url  # which Chrome is this session attached to?
-agent-browser --session <name> get url      # what page is that Chrome actually on?
-agent-browser --session <name> tab list     # which tabs does the session think it has?
-curl -s 127.0.0.1:9222/json/list            # which targets does the real browser expose?
+agent-browser session                       # 我在哪个 session 上？
+agent-browser session list                  # 有几个、哪个是当前的？
+agent-browser --session <name> get cdp-url  # 这个 session 挂在哪个 Chrome 上？
+agent-browser --session <name> get url      # 那个 Chrome 实际停在哪一页？
+agent-browser --session <name> tab list     # 这个 session 认为自己有哪些标签页？
+curl -s 127.0.0.1:9222/json/list            # 真实浏览器暴露了哪些 target？
 ```
 
-- `cdp-url` points somewhere other than the port you meant → you are on the wrong instance. Re-run with the correct `--session` and `--cdp <port>`. Do not log in again.
-- `cdp-url` is a random high port (not `9222`) → this session is on its own private instance: visible, throwaway profile, **logged out**. That is correct and intended for a task that needs no login. If you expected the user's session, you simply forgot `--cdp 9222` — fix that instead of investigating the app.
-- The session's active tab is missing from `/json/list` → a **dead target**. `eval` and `snapshot` against it keep returning the old DOM, which is how a closed login page goes on "proving" the app signed the user out. Re-list tabs, switch to a target that exists in `/json/list`, then re-check.
-- Two sessions both attached to the same port but on different pages → different tabs; list tabs and use the one the user is looking at.
-- Only when `cdp-url` **and** the URL are both right may you treat a login page as a genuine auth loss.
+- `cdp-url` 指向的不是你想要的端口 → 你在错误的 instance 上。带上正确的 `--session` 和 `--cdp <port>` 重跑。不要重新登录。
+- `cdp-url` 是一个随机高位端口、不是 `9222` → 这个 session 在自己的 private instance 上：可见、一次性 profile、**未登录**。对不需要登录的任务来说这是正确且预期的。如果你本意是要用户的 session，那你就是忘了 `--cdp 9222`——去修这个，而不是去查应用。
+- session 的活动标签页不在 `/json/list` 里 → 这是一个 **dead target**。对它 `eval` 和 `snapshot` 会一直返回旧 DOM，一个已经关掉的登录页就是这样「证明」应用把用户登出了。重新列标签页，切到 `/json/list` 里存在的 target，再重新检查。
+- 两个 session 都连在同一个端口但页面不同 → 是不同的标签页；列出标签页，用用户正在看的那个。
+- 只有当 `cdp-url` **和** URL 都正确时，你才可以把登录页当成真实的 auth 丢失。
 
-### Concurrent tasks: one browser per task, one port per browser
+### 并发任务：一个任务一个浏览器，一个浏览器一个端口
 
-Two tasks that share a port share **one browser and one set of tabs**. A new session does not get a private page: it opens its own `about:blank` in that shared window, and its "current tab" follows what is active in that browser. Measured: three fresh sessions all reported the identical tab set, `t1` was the same shared page in all three, and all three ended up current on the same `about:blank` — so a `click` in one session lands wherever another session last navigated, with no error.
+共享一个端口的两个任务共享**一个浏览器和一套标签页**。新 session 并不会拿到一个私有页面：它在那扇共享窗口里开自己的 `about:blank`，而它的「当前标签页」跟着那个浏览器里处于活动状态的东西走。实测：三个全新 session 报告了完全相同的标签页集合，`t1` 在三个里都是同一个共享页面，三个最终都停在同一个 `about:blank` 上——所以一个 session 里的 `click` 会落在另一个 session 最后导航到的地方，而且不报错。
 
-Measured in the same run: concurrent activity navigated the user's **own** tab away from the page they were reading. Sharing a browser does not merely inconvenience the other task, it edits what the user is looking at.
+同一次实测里：并发活动把用户**自己**的标签页从他正在读的页面上导航走了。共享一个浏览器不只是打扰另一个任务，它会改动用户正在看的东西。
 
-The simplest isolation is free: **a task that names no port already has its own browser.** Concurrency is only a problem for tasks that must share 9222's login state.
+最简单的隔离是免费的：**不指定端口的任务本来就有自己的浏览器。** 并发只对必须共享 9222 登录态的任务才是问题。
 
-- **One task per browser.** Either give each concurrent task its own session name and let it take a private instance, or serialize the tasks that need 9222.
-- Need several **signed-in** instances at once? `zsh -ic 'chrome-auto-claim <task>'` hands out a port from a pool, each with its own **persistent** profile (`~/.chrome-automation-<port>`) so each can hold its own login. It is idempotent per task name — reuse one stable name and you get the same port and browser; a *different* name claims a *second* port and pops a *second* window, so never mint a fresh name per run. `zsh -ic 'chrome-auto-release <task>'` frees it; `chrome-auto-list` shows holders. A fresh profile starts logged out — the user signs in there once, as they did for 9222.
-- If a task genuinely must share one browser, give it its own labelled tab (`tab new --label <task>`), put `tab <label>` on every command, and close it when done. That prevents cross-talk between pages — but not the focus steal that creating the tab costs (see below), and not the pile-up if you forget to close it.
+- **一个任务一个浏览器。** 要么给每个并发任务各自的 session 名、让它起一个 private instance，要么把需要 9222 的任务串行化。
+- 需要同时有多个**已登录**的 instance？`zsh -ic 'chrome-auto-claim <task>'` 从池子里发一个端口，每个都有自己的**持久化** profile（`~/.chrome-automation-<port>`），因此每个都能各自保持登录。它按 task 名幂等——复用一个固定名字就能拿到同一个端口和浏览器；**换一个**名字会占用**第二个**端口并弹出**第二个**窗口，所以绝不要每次运行都新造名字。`zsh -ic 'chrome-auto-release <task>'` 释放它；`chrome-auto-list` 显示持有者。全新 profile 起始是未登录的——用户在其中登录一次，就像他为 9222 做的那样。
+- 如果任务确实必须共享一个浏览器，给它一个自己带标签的 tab（`tab new --label <task>`），每条命令都带上 `tab <label>`，用完关掉。这能防止页面之间串扰——但防不了创建这个 tab 所要付出的 focus 抢占（见下），也防不了忘记关导致的堆积。
 
-### Do not steal the user's focus
+### 不要抢走用户的 focus
 
-Measured on this machine — the complete list of actions that cost the user their focus:
+实测本机——会消耗用户 focus 的完整动作清单：
 
-| action | steals focus? |
+| 动作 | 会不会 steal focus？ |
 |---|---|
-| the **first command on a new session name** (it launches a window) | **yes** |
-| `open` / `snapshot` / `get` / `eval` / `console` on a session whose window already exists | no |
-| `tab new` | **yes** |
-| switching tabs (`tab <tN>`) | **yes** |
-| `tab close` / `tab list` | no |
+| **新 session 名上的第一条命令**（它会拉起一个窗口） | **会** |
+| 窗口已存在的 session 上的 `open` / `snapshot` / `get` / `eval` / `console` | 不会 |
+| `tab new` | **会** |
+| 切换标签页（`tab <tN>`） | **会** |
+| `tab close` / `tab list` | 不会 |
 
-Creating a tab activates its window — that is the whole mechanism behind both "the focus jumped out of my terminal" and "there is a stray `about:blank`". One action, two symptoms. Nothing brings the focus back: these are agent-browser's own actions with no focus-restoring wrapper around them (unlike `chrome-auto-start`, which restores the previously frontmost app after launching), so focus stays on Chrome until the user clicks back — mid-sentence, if they were typing.
+创建标签页会激活它的窗口——这就是「focus 从我的终端跳走了」和「多出一个 stray `about:blank`」这两个症状背后的同一个机制。一个动作，两个症状。没有任何东西能把 focus 还回去：这些是 agent-browser 自己的动作，外面没有套一层恢复 focus 的包装（不像 `chrome-auto-start`，它会在启动后把之前最前的应用恢复回来），所以 focus 会一直留在 Chrome 上，直到用户自己点回来——如果他们正在打字，那就是打字打到一半。
 
-That leaves exactly two costs for you to control:
+于是只有两项成本由你控制：
 
-- **Launch cost — pay it once per task.** Use one session name for the whole task, so a window is created once instead of once per command. Keep instances long-lived; don't start and stop one per task.
-- **Tab cost — avoid it entirely.** Stay in one tab: navigate with `open`, or in a SPA with `eval "location.hash='#/path'"` (measured: walking four routes that way never took focus). Reaching a different page is **not** a reason to switch tabs. If the task genuinely needs two pages visible at once, `tab new` once and close the extra the moment you are done — never leave `about:blank`s behind.
-- `zsh -ic 'chrome-front 9222'` fronts the process listening on that port — for when the user actually needs to look at or type into a window (the login handoff below), never as a "so you can see it" step. That handoff is the one place stealing focus is intended.
-- Prefer reusing an instance that is already up over starting another.
+- **启动成本——每个任务只付一次。** 整个任务用一个 session 名，这样窗口只创建一次，而不是每条命令一次。让 instance 长期存活；不要每个任务起一个停一个。
+- **标签页成本——完全避免。** 留在一个标签页里：用 `open` 导航，或者在 SPA 里用 `eval "location.hash='#/path'"`（实测：这样走四条路由从未抢占 focus）。到达另一个页面**不是**切换标签页的理由。如果任务确实需要同时看到两个页面，`tab new` 一次，做完立刻关掉多出来的那个——不要留下 `about:blank`。
+- `zsh -ic 'chrome-front 9222'` 会把监听该端口的进程调到前台——用在用户确实需要看、或需要往窗口里输入的时候（下面的登录交接），绝不要把它当作「让你也看看」的一步。那个交接是唯一一处有意抢占 focus 的地方。
+- 优先复用一个已经起来的 instance，而不是再起一个。
 
-### Do not narrate a cause you have not verified
+### 不要讲一个你没验证过的原因
 
-A symptom seen twice is not a rule. "Login drops every time the backend restarts" was invented from two observations and zero tests, and it sent the investigation to the wrong place.
+一个症状看到两次不构成规律。「后端每次重启登录态就掉」是凭两次观察、零次测试编出来的，它把调查带到了错的地方。
 
-- Report observation and location only: session name, `cdp-url`, URL, tab. Name a cause only after a check has ruled out the alternatives above.
-- When the user says "I'm looking right at it and it's logged in", that is strong evidence about reality. Re-check your own context first instead of arguing — and do not spend a turn agreeing with them before you have checked.
+- 只报告观察和位置：session 名、`cdp-url`、URL、tab。只有在某个检查排除了上面那些替代项之后，才给原因。
+- 当用户说「我正盯着它，它是登录着的」，那是关于现实的强证据。先重新检查你自己的上下文，而不是争辩——也不要在检查之前先花一轮去附和他。
 
-### Which instance to use
+### 该用哪个 instance
 
-Two kinds exist on this machine. Both are headed and on screen — **neither is headless**:
+这台机器上有两种。两者都是 headed、都在屏幕上——**哪个都不是 headless**：
 
-- **The shared instance, on `9222`** (`~/.chrome-automation`, a persistent profile kept separate from the user's everyday Chrome). The user keeps it signed in for automation, so treat its login state as real and reusable. Reach it with `--cdp 9222`. It is *shared*: concurrent sessions collide in it and pile up `about:blank`s, so run one task at a time there.
-- **A private instance** — what you get by naming no port. A throwaway profile, **logged out**, gone with the session. Right for a task that needs no auth; wrong for anything that does. It costs one window and one focus steal per session name.
+- **shared instance，在 `9222` 上**（`~/.chrome-automation`，一个与用户日常 Chrome 分开的持久化 profile）。用户为自动化保持它登录，所以把它的登录态当作真实且可复用的。用 `--cdp 9222` 访问它。**它不是一个特权浏览器或私人浏览器**——它只是一个恰好长期存活且已经登录的普通自动化 instance，和 `chrome-auto-claim` 发出去的那些端口属于同一类资源。所以不要为它发明特殊规则，也不要把它当成脆弱的：要回答的问题永远是*这个动作会不会打扰用户或另一个任务*，绝不是*这个窗口归谁*。（把这点搞反代价很大——曾把 9222 当成「用户的浏览器，别碰」，结果让一个设计的好几轮都跑偏了。）它是*共享*的：并发 session 会在里面撞车并堆积 `about:blank`，所以在那上面一次只跑一个任务。
+- **private instance**——不指定端口得到的就是它。一次性 profile、**未登录**、随 session 消失。适合不需要 auth 的任务；任何需要 auth 的任务都不该用它。它每个 session 名要花一个窗口和一次 focus 抢占。
 
-Never fall back to a **headless** browser of your own. The user must be able to watch what you do, and to sign in when a credential step needs them — evidence collected in a browser they cannot open is not evidence about what they will see.
+绝不要退回到你自己起的 **headless** 浏览器。用户必须能看着你做什么，并在需要凭据时能亲自登录——在一个他打不开的浏览器里收集到的证据，不是关于他将看到什么的证据。
 
-This is a local convention, not a general law. On a machine where CDP attaches to the user's ordinary Chrome instead, do not carry the assumption over — when it matters, check the `--user-data-dir` the CDP target is actually running with rather than assuming either way.
+这是本地约定，不是普遍规律。在 CDP 挂到用户日常 Chrome 的机器上，不要把这里的假设搬过去——必要时去查 CDP target 实际是以什么 `--user-data-dir` 在跑，而不是两种都靠猜。
 
-A login form in *this* browser is therefore **your** problem first, not the environment's:
+所以*这个*浏览器里出现登录表单，首先是**你**的问题，不是环境的问题：
 
-- The first and usually correct explanation is that you are on the wrong instance: a private, logged-out browser where you meant `--cdp 9222`, a drifted session, or a bare command. Run the identity checks above before anything else.
-- Never explain the login form away with "the user is probably signed in on their other Chrome", "the profile got reset", or "the session expired". You cannot see their other browser or their history, and inventing a cause you cannot observe is the same failure as "login drops every time the backend restarts".
-- Only after `cdp-url` and `url` both check out may you report a missing session — report the observation and ask, never a theory, then continue into the login/consent classification below like any other unauthenticated page.
+- 第一个、通常也是正确的解释是你在错误的 instance 上：一个私有的、未登录的浏览器，而你本意是 `--cdp 9222`；一个漂移的 session；或者一条裸命令。在做任何别的事之前先跑上面的身份检查。
+- 绝不要用「用户大概在他的另一个 Chrome 上登录着」「profile 被重置了」「session 过期了」把登录表单解释掉。你看不到他的另一个浏览器，也看不到他的历史，编一个你观察不到的原因，跟「后端每次重启登录态就掉」是同一种失败。
+- 只有 `cdp-url` 和 `url` 都对得上，你才可以报告 session 缺失——报告观察并询问，绝不给理论，然后像对待任何其他未认证页面一样，进入下面的登录 / consent 分类。
 
-`zsh -ic 'chrome-auto-start [port]'` (defaults to 9222) brings the shared instance up if it is down. `chrome-auto-start` and `chrome-front` are shell functions from the user's `zshrc`, not `agent-browser` subcommands — call them through `zsh -ic '...'`; a bare non-interactive shell cannot see them, which does not mean they are missing.
+`zsh -ic 'chrome-auto-start [port]'`（默认 9222）在 shared instance 没起来时把它拉起来。`chrome-auto-start` 和 `chrome-front` 是用户 `zshrc` 里的 shell 函数，不是 `agent-browser` 的子命令——要通过 `zsh -ic '...'` 调用；裸的非交互 shell 看不到它们，但那不代表它们不存在。
 
-## Authentication and tokens
+## 认证与 token
 
-- Reuse the stable session's cookies/localStorage. Read only the one required token field in page context; never dump all cookies or storage.
-- Prefer same-origin `fetch` in an already-authenticated page context for protected API calls. This avoids copying tokens into shell arguments.
-- For repeated API checks within one Agent task, retain the token only in process memory and reuse it without asking the user again. Do not put short-lived tokens in a keychain, file, environment committed to disk, skill, transcript, logs, or command output.
-- If the process or session ends, or the token expires, reacquire it from the same stable authenticated browser context. Do not reuse a stale token from a previous task.
-- If an API-only task has no in-memory token and no authenticated context, stop and report the missing session; do not open a random frontend page merely to obtain a token. This gate is about *starting* a browser to get a token. It is never a reason to abandon a browser flow you already opened for legitimate evidence.
-- A session loss is an operational failure: restore/reconnect the same session first, then re-run the identity checks to confirm you are back on the same browser rather than a fresh blank one. Do not ask for a token that was already obtained during the current task unless it expired or the user explicitly chooses to re-authenticate.
+- 复用稳定 session 的 cookies / localStorage。只在页面上下文里读取所需的那一个 token 字段；绝不要 dump 全部 cookie 或 storage。
+- 对受保护的 API 调用，优先在已认证的页面上下文里发同源 `fetch`。这样避免把 token 复制进 shell 参数。
+- 一个 Agent 任务内做重复的 API 检查时，token 只留在进程内存里复用，不要再次询问用户。不要把短命 token 放进 keychain、文件、提交到磁盘的环境变量、skill、transcript、日志或命令输出。
+- 如果进程或 session 结束、或 token 过期，从同一个稳定的已认证浏览器上下文重新获取。不要复用上一个任务的陈旧 token。
+- 如果纯 API 任务既没有内存中的 token，也没有已认证的上下文，停下并报告 session 缺失；不要为了拿一个 token 就打开一个随便的前端页面。这道闸门管的是*为拿 token 而启动浏览器*。它绝不是放弃一个你已经为正当证据打开的浏览器流程的理由。
+- session 丢失是运维失败：先恢复 / 重连同一个 session，再跑身份检查确认你回到了同一个浏览器，而不是一个新的空白浏览器。不要索要当前任务里已经拿到的 token，除非它过期了或用户明确选择重新认证。
 
-### When a login, consent, or authorization page appears
+### 出现登录、consent 或授权页面时
 
-**Prove which browser you are looking at first.** Run the read-only identity checks in *Which browser am I actually driving?* before classifying anything. A login form reached on a drifted session, or on the wrong profile, is not an auth event at all — classifying it first is precisely how this skill fails. Classify only once `cdp-url` and `url` are confirmed on the intended browser.
+**先证明你看的是哪个浏览器。** 在分类之前先跑 *我实际驱动的是哪个浏览器？* 里的只读身份检查。在一个漂移的 session 上、或在错误的 profile 上撞到的登录表单，根本不是 auth 事件——先对它分类正是这个 skill 失败的方式。只有在 `cdp-url` 和 `url` 都确认在预期浏览器上之后，才做分类。
 
-**Complete it yourself** — the page only needs a click, and the session already carries the identity:
+**自己走完**——页面只需要一次点击，而 session 已经带着身份：
 
-- OAuth/SSO consent screens, internal 一键授权 pages
-- "Continue as `<already signed-in account>`", already-remembered account buttons, "同意并授权"
-- Scope or risk confirmations plainly implied by the task you were given
-- A device-authorization confirmation **only when the code on screen matches the code you requested in this task**
+- OAuth/SSO consent 页面、内部一键授权页
+- 「以 `<already signed-in account>` 继续」、已记住的账号按钮、「同意并授权」
+- 你被交付的任务显然蕴含的 scope 或风险确认
+- 设备授权确认——**仅当屏幕上的码与你在这个任务里请求的码一致时**
 
-Click through, confirm the flow completed, then resume the original task. Do not ask the user, and do not stop to investigate alternatives. After clicking a login or authorize entry point, run `tab list` before snapshotting — OAuth and SSO flows frequently open a new tab or popup, and snapshotting the old tab forever is the usual reason a login form "never appears".
+点过去，确认流程完成，然后回到原任务。不要问用户，也不要停下来研究替代方案。点击登录或授权入口之后，先跑 `tab list` 再 snapshot——OAuth 和 SSO 流程经常新开标签页或弹窗，而对旧标签页一直 snapshot 正是登录表单「从不出现」的常见原因。
 
-**Hand off to the user** — the next step needs something only a human has:
+**交接给用户**——下一步需要只有人类才有的东西：
 
-- Password entry, MFA/OTP/SMS, passkey, CAPTCHA
-- Several accounts listed and the correct one is ambiguous
-- Terms or permission choices that need a business decision
-- Authority with real-world reach you cannot justify from the task itself: granting a new device, production write scope, bulk export
-- A device-authorization confirmation whose code you did not request — you cannot verify who started that flow
+- 密码输入、MFA/OTP/短信、passkey、CAPTCHA
+- 列了多个账号且无法确定哪个是对的
+- 需要业务决策的条款或权限选择
+- 有真实世界影响、你无法从任务本身论证其正当性的权限：授予新设备、生产写权限、批量导出
+- 一个码不是你请求的设备授权确认——你无法核实是谁发起了那个流程
 
-**Never route around the prompt.** Do not go read backend auth config, extract a token from another source, switch profile, open a second session, or call an auth endpoint by hand. That is the "avoid disturbing the user" instinct; it costs more time than asking and still ends in the handoff anyway.
+**绝不要绕开提示。** 不要去读后端 auth 配置、从别的来源抽 token、切换 profile、开第二个 session，或手工调 auth 接口。那是「避免打扰用户」的本能；它比直接问更费时间，最后还是得交接。
 
-### Handing off a login to the user
+### 把登录交接给用户
 
-Do all of this in one turn, then stop:
+以下全部在同一轮做完，然后停下：
 
-1. Bring the visible browser window to the front and leave it on the exact login/consent URL: switch that tab (`agent-browser --session <name> tab <tN>`), then `zsh -ic 'chrome-front 9222'` — it fronts the Chrome process holding that port, so multiple instances cannot make it front the wrong one. This handoff is the one place stealing focus is intended. Report the URL.
-2. State in one sentence what the user must do, and what to reply when finished.
-3. End the turn. Do not run unrelated investigation while waiting.
+1. 把可见的浏览器窗口调到前台，让它停在确切的登录 / consent URL 上：切到那个标签页（`agent-browser --session <name> tab <tN>`），然后 `zsh -ic 'chrome-front 9222'`——它把持有该端口的 Chrome 进程调到前台，所以有多个 instance 也不会调错。这个交接是唯一一处有意抢占 focus 的地方。报告 URL。
+2. 用一句话说明用户必须做什么，以及做完后回什么。
+3. 结束这一轮。等待时不要跑无关的调查。
 
-When the user replies, re-check authentication on that same session and resume the original task from the step that was blocked. Do not re-plan from the start or re-ask for anything you already have.
+用户回复后，在同一个 session 上重新检查认证，并从被阻塞的那一步继续原任务。不要从头重新规划，也不要重新索要你已经有的东西。
 
-## API/UI separation and side effects
+## API/UI 分离与副作用
 
-- Keep data creation, updates, and acceptance tests on APIs unless the user explicitly asks to validate the UI form itself.
-- Use the UI only for the visual or interaction assertion that requires it; do not mix UI navigation into an API-only test.
-- Before an external, business-level side effect (send, approve, delete, publish — not the auth-consent clicks already classified above), restate the exact target and environment. Keep local test actions local.
+- 数据的创建、更新和验收测试都走 API，除非用户明确要求验证 UI 表单本身。
+- 只为那个确实需要的视觉或交互断言使用 UI；不要把 UI 导航混进纯 API 测试。
+- 在外部、业务级副作用（发送、审批、删除、发布——不是上面已经分类过的 auth-consent 点击）之前，重述确切目标和环境。把本地测试动作留在本地。
 
-## Failure reporting
+## 失败上报
 
-Classify failures precisely: CDP unavailable, session unauthenticated, target navigation failed, API/business error, or rendering/interaction failure. Include the next safe action and avoid speculative retries.
+精确分类失败：CDP 不可用、session 未认证、目标导航失败、API / 业务错误，或渲染 / 交互失败。给出下一步安全动作，避免投机性重试。
 
-For "session unauthenticated", always resolve it into one of three states before reporting, because two of them are not failures at all:
+对于「session 未认证」，报告前必须归入三种状态之一，因为其中两种根本不是失败：
 
-- `consent-clickable` — a consent page is on screen and you can finish it yourself. Go do that instead of reporting.
-- `awaiting-human` — a credential step is blocking; the user has been handed off per the template above. Say so in one line and wait.
-- `unauthenticated-no-path` — no session, no login URL, and no browser evidence requirement. Only this state is a stop-and-report.
+- `consent-clickable`——consent 页面就在屏幕上，你自己能走完。去做，而不是报告。
+- `awaiting-human`——有凭据步骤阻塞；已按上面的模板交接给用户。用一行说明并等待。
+- `unauthenticated-no-path`——没有 session、没有登录 URL，也没有浏览器证据需求。只有这个状态才是停下来报告。
 
-Never leave the user with a bare "没有登录态" and no indication of which state you are in.
+绝不要只丢给用户一句「没有登录态」而不说明你在哪个状态。

@@ -3,6 +3,10 @@ tags
 zshrc.local
 codex/config.toml
 
+# Personal/machine-specific Claude Code override layer. Ignoring it here (not
+# only in the global gitignore) keeps it out even on a fresh clone.
+**/settings.local.json
+
 # Ignore generated project instruction files; tracked files remain managed.
 **/CLAUDE.md
 !/CLAUDE.md

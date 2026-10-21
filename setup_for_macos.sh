@@ -333,6 +333,19 @@ link_file "$repo_dir/agent-skills/feature-acceptance" \
   "$HOME/.claude/skills/feature-acceptance"
 link_file "$repo_dir/agent-skills/feature-acceptance" \
   "$HOME/.agents/skills/feature-acceptance"
+
+# 第三方 Skill：独立 clone，随 setup 拉取上游更新
+tech_doc_skill="$HOME/.agents/skills/tech-doc-style-chinese"
+if [[ -d "$tech_doc_skill/.git" ]]; then
+  if ! run git -C "$tech_doc_skill" pull --ff-only; then
+    print -u2 "warn: 更新 $tech_doc_skill 失败，沿用本地版本"
+  fi
+else
+  clone_if_missing https://github.com/Fenng/tech-doc-style-chinese.git "$tech_doc_skill"
+fi
+link_file "$tech_doc_skill" "$HOME/.claude/skills/tech-doc-style-chinese"
+link_file "$tech_doc_skill" "$HOME/.codex/skills/tech-doc-style-chinese"
+
 if [[ ! -f "$repo_dir/codex/config.toml" ]]; then
   run cp "$repo_dir/codex/config.toml.example" "$repo_dir/codex/config.toml"
 fi
